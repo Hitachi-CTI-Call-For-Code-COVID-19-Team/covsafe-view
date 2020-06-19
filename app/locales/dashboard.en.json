@@ -1,0 +1,24 @@
+{
+  "toolbar": {
+    "reset-layout": "Reset Layout"
+  },
+  "current-total-risks": {
+    "title": "Current Total Risks",
+    "last-update": "Last Update",
+    "view-details": "View Details"
+  },
+  "time-line-total-risks": {
+    "title": "Total Risks Transition",
+    "last-update": "Last Update",
+    "view-details": "View Details"
+  },
+  "suggestions-list": {
+    "title": "Latest Suggestions",
+    "view-all": "View All"
+  },
+  "heatmap": {
+    "title": "ANSHIN Index Map",
+    "last-update": "Last Update",
+    "view-details": "View Details"
+  }
+}

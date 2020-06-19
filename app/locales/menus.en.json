@@ -1,0 +1,39 @@
+{
+  "navbar": {
+  },
+  "sidebar": {
+    "menu": {
+      "user": {
+        "profile": "My Profile",
+        "settings": "Settings",
+        "logout": "Sign Out"
+      },
+      "dashboard": "Dashboard",
+      "analytics": {
+        "itself": "Analytics",
+        "areas": "Areas",
+        "individuals": "Individuals"
+      },
+      "suggestions": "Suggestions",
+      "signage": "Signage Mode",
+      "settings": "Settings",
+      "languages": "Languages"
+    }
+  },
+  "main": {
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "analytics": {
+      "areas": {
+        "title": "Area Analysis"
+      },
+      "individuals": {
+        "title": "Worker Analysis"
+      }
+    },
+    "suggestions": {
+      "title": "Suggestions"
+    }
+  }
+}

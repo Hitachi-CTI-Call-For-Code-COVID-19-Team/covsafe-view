@@ -1,0 +1,24 @@
+{
+  "toolbar": {
+    "reset-layout": "レイアウトのリセット"
+  },
+  "current-total-risks": {
+    "title": "現在の全体リスク",
+    "last-update": "最終更新",
+    "view-details": "詳細はこちら"
+  },
+  "time-line-total-risks": {
+    "title": "全体リスクの推移",
+    "last-update": "最終更新",
+    "view-details": "詳細はこちら"
+  },
+  "suggestions-list": {
+    "title": "最新の提案",
+    "view-all": "全てを見る"
+  },
+  "heatmap": {
+    "title": "安心度マップ",
+    "last-update": "最終更新",
+    "view-details": "詳細はこちら"
+  }
+}

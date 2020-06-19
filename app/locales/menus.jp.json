@@ -1,0 +1,40 @@
+{
+  "navbar": {
+  },
+  "sidebar": {
+    "menu": {
+      "user": {
+        "profile": "プロファイル",
+        "settings": "設定",
+        "logout": "サインアウト"
+      },
+      "dashboard": "ダッシュボード",
+      "analytics": {
+        "itself": "分析",
+        "areas": "エリア",
+        "individuals": "従業員"
+      },
+      "suggestions": "提案",
+      "signage": "サイネージモード",
+      "languages": "言語"
+    }
+  },
+  "main": {
+    "dashboard": {
+      "title": "ダッシュボード",
+      "cards": {}
+    },
+    "analytics": {
+      "areas": {
+        "title": "エリア分析"
+      },
+      "individuals": {
+        "title": "従業員分析"
+      }
+    },
+    "suggestions": {
+      "title": "提案一覧",
+      "cards": {}
+    }
+  }
+}

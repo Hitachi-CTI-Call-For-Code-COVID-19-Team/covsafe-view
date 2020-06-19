@@ -1,0 +1,15 @@
+{
+  "areas": {
+    "list": {
+      "title": "ANSHIN Index and Suggestions of each Area"
+    },
+    "map": {
+      "title": "ANSHIN Index Map"
+    }
+  },
+  "individuals": {
+    "list": {
+      "title": "ANSHIN Index and Suggestions of each Individuals"
+    }
+  }
+}
