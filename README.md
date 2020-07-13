@@ -2,17 +2,18 @@
 
 ## How To Start
 
-### Start Locally on Debug Mode
+Before you kick commands shown below, please update `./build/.env` with your configurations.
+
+### Start Locally in Debug Mode
 
 ```sh
 unset SESSION_SECRET COOKIE_SECURE CLIENT_ID TENANT_ID SECRET OAUTH_SERVER_URL REDIRECT_URI BASE_PATH
-export PORT=8080
 npm run start:dev
 ```
 
 access to http://localhost:8080
 
-### Start Locally on Prod Mode
+### Start Locally in Prod Mode
 
 ```sh
 unset SESSION_SECRET COOKIE_SECURE CLIENT_ID TENANT_ID SECRET OAUTH_SERVER_URL REDIRECT_URI BASE_PATH

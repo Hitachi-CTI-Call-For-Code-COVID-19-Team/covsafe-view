@@ -16,7 +16,7 @@
   "contributors": [
     "Webkom"
   ],
-  "license": "(MIT OR Apache-2.0)",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.5",
