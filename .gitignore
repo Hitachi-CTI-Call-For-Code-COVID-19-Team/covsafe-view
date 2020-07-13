@@ -1,5 +1,6 @@
 # build output
 dist
+serv
 
 # dependencies
 node_modules

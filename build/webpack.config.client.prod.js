@@ -41,7 +41,7 @@ SOFTWARE.
 var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractCssChunks = require("extract-css-chunks-webpack-plugin");
+var ExtractCssChunks = require('extract-css-chunks-webpack-plugin');
 var OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var TerserPlugin = require('terser-webpack-plugin');
 var CircularDependencyPlugin = require('circular-dependency-plugin');
@@ -179,17 +179,17 @@ module.exports = {
       // Fonts
       {
         test: /\.(ttf|eot|woff|woff2)$/,
-        loader: "file-loader",
+        loader: 'file-loader',
         options: {
-          name: "fonts/[name].[ext]",
+          name: 'fonts/[name].[ext]',
         }
       },
       // Files
       {
         test: /\.(jpg|jpeg|png|gif|svg|ico)$/,
-        loader: "file-loader",
+        loader: 'file-loader',
         options: {
-          name: "static/[name].[ext]",
+          name: 'static/[name].[ext]',
         }
       }
     ]
@@ -204,4 +204,4 @@ module.exports = {
     host: '0.0.0.0',
     port: 8080
   }
-}
+};

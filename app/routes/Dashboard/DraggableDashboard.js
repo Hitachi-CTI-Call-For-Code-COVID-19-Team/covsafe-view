@@ -33,12 +33,12 @@ import {
   CardFooter,
   Media,
   Progress
-} from './../../components';
-import { applyColumn } from './../../components/FloatGrid';
-import { MediaDonutChart, LineAreaChart } from './../../components/Charts';
-import { IndoorMap } from './../../components/Maps';
-import { EasyTable } from './../../components/Tables';
-import { HeaderMain } from './../components/HeaderMain';
+} from '../../components';
+import { applyColumn } from '../../components/FloatGrid';
+import { MediaDonutChart, LineAreaChart } from '../../components/Charts';
+import { IndoorMap } from '../../components/Maps';
+import { EasyTable } from '../../components/Tables';
+import { HeaderMain } from '../components/HeaderMain';
 
 const LAYOUT = {
   'current-total-risks': { h: 6, minH: 6, maxH: 6, md: 4 },
@@ -221,7 +221,7 @@ const HeatData = [{
 }];
 const SliderConfig = {};
 
-class DefaultDashboard extends React.Component {
+class DraggableDashboard extends React.Component {
   static propTypes = {
     fluid: PropTypes.bool,
   };
@@ -374,5 +374,5 @@ class DefaultDashboard extends React.Component {
   }
 }
 
-const DefaultDashboardWithTranslation = withTranslation()(DefaultDashboard);
-export { DefaultDashboardWithTranslation as DefaultDashboard };
+const DraggableDashboardWithTranslation = withTranslation()(DraggableDashboard);
+export { DraggableDashboardWithTranslation as DraggableDashboard };

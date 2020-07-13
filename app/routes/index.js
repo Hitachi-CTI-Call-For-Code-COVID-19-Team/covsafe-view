@@ -54,6 +54,7 @@ import { AreaAnlytics, IndividualAnlytics } from './Analytics';
 import ProfileDetails from './Apps/ProfileDetails';
 import ProfileEdit from './Apps/ProfileEdit';
 import SettingsEdit from './Apps/SettingsEdit';
+import Error404 from './Error404';
 
 // ----------- Layout Imports ---------------
 import { DashboardNavbar } from './../layout/components/DashboardNavbar';
@@ -78,8 +79,10 @@ export const RoutedContent = () => {
       <Route path="/user/profile-edit" exact component={ ProfileEdit }  />
       <Route path="/user/settings-edit" exact component={ SettingsEdit } />
 
+      <Route component={Error404} path="/error-404" />
+
       { /* default page: 404 */ }
-      <Redirect to="/pages/error-404" />
+      <Redirect to="/error-404" />
     </Switch>
   );
 };

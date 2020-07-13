@@ -18,63 +18,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { withTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
+import BarLoader from 'react-spinners/BarLoader';
+import { css } from "@emotion/core";
 
 import {
-  Button,
   Container,
   Row,
-  Card,
-  CardBody,
   Col,
   Progress,
-  Table,
-} from './../../components';
-import { IndexCard } from './components';
-import { MediaDonutChart, DonutChart, LineAreaChart, ArcChart, TinyAreaChart, BarChart } from './../../components/Charts';
-import { IndoorMap } from './../../components/Maps';
-import { EasyTable } from './../../components/Tables';
-import { HeaderMain } from './../components/HeaderMain';
-import { Loading } from './../../components/Loading/Loading';
+} from '../../components';
+import { MediaDonutChart, LineAreaChart, ArcChart } from '../../components/Charts';
+import { IndoorMap } from '../../components/Maps';
+import { EasyTable } from '../../components/Tables';
+import { HeaderMain } from '../components/HeaderMain';
 
-import classes from './Dashboard.scss';
-
-// constants
-const DonutChartStyles = {
-  aspect: 1.0,
-  innerRadius: '80%',
-  outerRadius: '100%',
-  cx: '50%',
-  cy: '50%',
-  startAngle: 0,
-  endAngle: 360,
-};
-const ArcChartStyles = {
-  aspect: 4.0,
-  innerRadius: '80%',
-  outerRadius: '100%',
-  cx: '50%',
-  cy: '70%'
-};
-
-const TotalRisks = require('./../../data/latest-total-risks.json');
-const CongestionRisks = require('./../../data/latest-congestion-risks.json');
-const SanitizationRisks = require('./../../data/latest-sanitization-risks.json');
-const DisinfectionRisks = require('./../../data/latest-disinfection-risks.json');
-const URLs = [
-  // total risks
-  '',
-  // congestion risks
-  '',
-  // sanitization risks
-  '',
-  // disinfection risks
-  '',
-];
-
+const override = css`
+  display: block;
+  margin: 0 auto;
+`;
 
 // dummy data
+const TotalRisks = require('../../data/latest-total-risks.json');
+
 const DonutData = [
   {name: 'High', value: 500, color: 'danger'},
   {name: 'Acceptable', value: 200, color: 'warning'},
@@ -260,47 +225,47 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      total: null,
-      congestion: null,
-      sanitization: null,
-      disinfection: null,
+      totalRisks: null,
       loading: true,
     };
   }
 
   componentDidMount() {
     // fetching data
-    Promise.all(URLs.map(u => fetch(u)))
-    .then(responses => Promise.all(responses.map(res => res.json())))
-    .then(jsons => {
-      this.setState({
-        total: jsons[0],
-        congestion: jsons[1],
-        sanitization: jsons[2],
-        disinfection: jsons[3],
-        loading: false,
+    fetch(`${process.env.API_URL || ''}/api/db`)
+      .then(res => res.json())
+      .then(json => {
+        this.setState({
+          totalRisks: json,
+          loading: false,
+        });
+      })
+      .catch(e => {
+        // FIXME: switch fallback mode and remove interval part
+        this.setState({
+          totalRisks: TotalRisks,
+          loading: false,
+        });
       });
-    })
-    .catch(e => {
-      // FIXME: switch fallback mode and remove interval part
-      this.setState({
-        total: TotalRisks,
-        congestion: CongestionRisks,
-        sanitization: SanitizationRisks,
-        disinfection: DisinfectionRisks,
-        loading: false,
-      });
-      console.log(this.state);
-    });
   }
   
   render() {
     const { fluid, t } = this.props;
-    const { total, congestion, sanitization, disinfection } = this.state;
+    const { totalRisks } = this.state;
 
     if (this.state.loading) {
       return (
-        <Loading loading={this.state.loading}/>
+        <div className='mt-5'>
+          <BarLoader
+            css={override}
+            width={150}
+            color={'#999999'}
+            loading={this.state.loading}
+          />
+          <div className='text-center mt-4'>
+            Please Wait. Loading...
+          </div>
+        </div>
       );
     } else {
       return (
@@ -308,167 +273,52 @@ class Dashboard extends React.Component {
           <Container fluid={false}>
             <Row className='mt-1'>
               <Col lg={12}>
-                <div className='d-flex'>
-                  <HeaderMain title={t('menus:main.dashboard.title')} />
-                  <div className={classNames(classes['flex-vertical-center'], 'ml-auto', 'd-flex')}>
-                    {t('dashboard:time-line-total-risks.last-update') + ': ' +
-                    (new Date(total[0].timestamp)).toLocaleString()}
+                <HeaderMain title={t('menus:main.dashboard.title')} />
+              </Col>
+            </Row>
+
+            <Row className='mb-3'>
+              <Col lg={4}>
+                <div>
+                  <div className='hr-text hr-text-left mt-4 mb-2 lead'>
+                    <span>
+                      {t('dashboard:current-total-risks.title')}
+                    </span>
                   </div>
+                  <div className='mb-4'>
+                    {t('dashboard:current-total-risks.last-update')}: <strong>
+                      {new Date(totalRisks[0].timestamp).toLocaleString()}
+                    </strong>
+                  </div>
+                  <MediaDonutChart data={DonutData} />
+                  {/* <ArcChart data={totalRisks[0].risk} /> */}
+                </div>
+              </Col>
+              <Col lg={8}>
+                <div>
+                  <div className='hr-text hr-text-left mt-4 mb-2 lead'>
+                    <span>
+                      {t('dashboard:time-line-total-risks.title')}
+                    </span>
+                  </div>
+                  <div className='mb-4'>
+                    {t('dashboard:time-line-total-risks.last-update')}: <strong>2020/6/20 14:00:00 PM</strong>
+                  </div>
+                  <LineAreaChart data={AreaData} />
                 </div>
               </Col>
             </Row>
-            <Row className='mt-3 mb-5'>
-              <Col lg={12}>
-                <div className='hr-text hr-text-left mt-2 mb-4 lead'>
-                  <span>
-                    ANSHIN Index Overview
-                  </span>
-                </div>
-              </Col>
-              <Col lg={3} md={6}>
-                <IndexCard
-                  title='Total'
-                  link={{
-                    title: 'What\'s needed?',
-                    path: 'suggestions',
-                  }}
-                  arcData={{ ...total[0].risk }}
-                  arcStyle={DonutChartStyles}
-                  areaData={total.map(e => ({ ...e.risk, timestamp: e.timestamp }))}
-                  areaStyle={{
-                    width: '100%',
-                    aspect: 2.6,
-                  }} />
-              </Col>
-              <Col lg={3} md={6}>
-                <IndexCard
-                  title='Congestion'
-                  link={{
-                    title: 'What\'s needed?',
-                    path: 'suggestions',
-                  }}
-                  arcData={{ ...congestion[0].risk }}
-                  arcStyle={DonutChartStyles}
-                  areaData={congestion.map(e => ({ ...e.risk, timestamp: e.timestamp }))}
-                  areaStyle={{
-                    width: '100%',
-                    aspect: 2.6,
-                  }} />
-              </Col>
-              <Col lg={3} md={6}>
-                <IndexCard
-                  title='Sanitization'
-                  link={{
-                    title: 'What\'s needed?',
-                    path: 'suggestions',
-                  }}
-                  arcData={{ ...sanitization[0].risk }}
-                  arcStyle={DonutChartStyles}
-                  areaData={sanitization.map(e => ({ ...e.risk, timestamp: e.timestamp }))}
-                  areaStyle={{
-                    width: '100%',
-                    aspect: 2.6,
-                  }} />
-              </Col>
-              <Col lg={3} md={6}>
-                <IndexCard
-                  title='Disinfection'
-                  link={{
-                    title: 'What\'s needed?',
-                    path: 'suggestions',
-                  }}
-                  arcData={{ ...disinfection[0].risk }}
-                  arcStyle={DonutChartStyles}
-                  areaData={disinfection.map(e => ({ ...e.risk, timestamp: e.timestamp }))}
-                  areaStyle={{
-                    width: '100%',
-                    aspect: 2.6,
-                  }} />
-              </Col>
-            </Row>
 
-
-
-{/* 
-            <Row className='my-3'>
-              <Col lg={1}></Col>
-              <Col lg={10}>
-                <Table responsive>
-                  <thead>
-                    <tr>
-                      <th>ANSHIN Index Types</th>
-                      <th>Current</th>
-                      <th>Timelines</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style={{ width: '20%', verticalAlign: 'middle' }} className='font-weight-bold lead'>
-                        Total Index
-                        </td>
-                      <td style={{ width: '30%', verticalAlign: 'middle' }}>
-                        <ArcChart data={{ ...total[0].risk, dataKey: 'value' }} styles={ArcChartStyles} />
-                      </td>
-                      <td style={{ width: '50%', verticalAlign: 'middle' }}>
-                        <TinyAreaChart data={total.map(e => ({ ...e.risk, timestamp: e.timestamp }))} height={40} />
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td style={{ width: '20%', verticalAlign: 'middle' }} className='font-weight-bold'>
-                        Congestion Index
-                        </td>
-                      <td style={{ width: '30%', verticalAlign: 'middle' }}>
-                        <ArcChart
-                          data={congestion[0].risk}
-                          styles={ArcChartStyles}
-                        />
-                      </td>
-                      <td style={{ width: '50%', verticalAlign: 'middle' }}>
-                        <TinyAreaChart data={congestion.map(e => ({ ...e.risk, timestamp: e.timestamp }))} height={40} />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ width: '20%', verticalAlign: 'middle' }} className='font-weight-bold'>
-                        Sanitization Index
-                        </td>
-                      <td style={{ width: '30%', verticalAlign: 'middle' }}>
-                        <ArcChart
-                          data={sanitization[0].risk}
-                          styles={ArcChartStyles}
-                        />
-                      </td>
-                      <td style={{ width: '50%', verticalAlign: 'middle' }}>
-                        <TinyAreaChart data={sanitization.map(e => ({ ...e.risk, timestamp: e.timestamp }))} height={40} />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ width: '20%', verticalAlign: 'middle' }} className='font-weight-bold'>
-                        Disinfection Index
-                        </td>
-                      <td style={{ width: '30%', verticalAlign: 'middle' }}>
-                        <ArcChart
-                          data={disinfection[0].risk}
-                          styles={ArcChartStyles}
-                        />
-                      </td>
-                      <td style={{ width: '50%', verticalAlign: 'middle' }}>
-                        <TinyAreaChart data={disinfection.map(e => ({ ...e.risk, timestamp: e.timestamp }))} height={40} />
-                      </td>
-                    </tr>
-
-                  </tbody>
-                </Table>
-              </Col>
-              <Col lg={1}></Col>
-            </Row> */}
             <Row className='mb-5'>
               <Col lg={12}>
                 <div>
-                  <div className='hr-text hr-text-left mt-2 mb-4 lead'>
+                  <div className='hr-text hr-text-left mt-4 mb-2 lead'>
                     <span>
                       {t('dashboard:heatmap.title')}
                     </span>
+                  </div>
+                  <div className='mb-4'>
+                    {t('dashboard:heatmap.last-update')}: <strong>2020/6/20 14:00:00 PM</strong>
                   </div>
                   <IndoorMap
                     config={MapConfig}

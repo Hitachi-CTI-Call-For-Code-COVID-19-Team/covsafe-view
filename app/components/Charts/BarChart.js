@@ -38,47 +38,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-var path = require('path');
+import React from 'react';
+import PropTypes from 'prop-types';
+import colors from './../../colors';
+import {  
+  ResponsiveContainer,
+  BarChart, 
+  Bar,
+  XAxis,
+  Tooltip,
+} from './../../components/recharts';
 
-var root = path.join(__dirname);
-var leafletVersion = '1.6.0';
+const ResponsiveBarChart = (props) => {
+  const { data, width, aspect } = props;
 
-var config = {
-  rootDir: root,
-  // Targets ========================================================
-  servDir: path.join(root, 'serv'),
-  distDir: path.join(root, 'dist'),
-  clientManifestFile: 'manifest.webpack.json',
-  clientStatsFile: 'stats.webpack.json',
-
-  // Source Directory ===============================================
-  srcDir: path.join(root, 'app'),
-  srcServerDir: path.join(root, 'server'),
-
-  // HTML Layout ====================================================
-  srcHtmlLayout: path.join(root, 'app', 'index.html'),
-
-  // Site Config ====================================================
-  siteTitle: 'Covsafe',
-  siteVersion: '0.0.1',
-  siteDescription: 'monitor the risks of COVID-19 infection',
-  siteCannonicalUrl: 'http://localhost:8080',
-  siteKeywords: 'COVID-19 CallForCode',
-  scssIncludes: [],
-
-  // Leaflet Config =================================================
-  leaflet: {
-    css: {
-      url: `https://unpkg.com/leaflet@${leafletVersion}/dist/leaflet.css`,
-      integrity: 'sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==',
-      crossorigin: ''
-    },
-    js: {
-      url: `https://unpkg.com/leaflet@${leafletVersion}/dist/leaflet.js`,
-      integrity: 'sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==',
-      crossorigin: ''
-    }
+  if (data === null || !Array.isArray(data)) {
+    return null;
   }
-}
 
-module.exports = config;
+  const list = data.map(e => ({ value: e.value, date: e.timestamp })).reverse();
+  const fcolor = colors[data[0].level === 'H' ? 'danger-02' : data[0].level === 'A' ? 'warning-02' : 'success-02'];
+
+  return (
+    <ResponsiveContainer width={width} aspect={aspect}>
+      <BarChart data={list} margin={{ top: 0, bottom: 0, right: 0, left: 0 }}>
+        <XAxis hide={true} dataKey='date' />
+        <Tooltip />
+        <Bar dataKey='value' fill={fcolor} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
+ResponsiveBarChart.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.shape({
+    // must be b/w 0 and 1
+    value: PropTypes.number,
+    // must be H|A|L
+    level: PropTypes.string,
+  })),
+  width: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.string,
+  ]),
+  aspect: PropTypes.number,
+};
+ResponsiveBarChart.defaultProps = {
+  width: '100%',
+  aspect: 1.0,
+};
+
+export { ResponsiveBarChart };

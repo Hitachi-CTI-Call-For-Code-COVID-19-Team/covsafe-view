@@ -17,5 +17,8 @@ limitations under the License.
 import { LineAreaChart } from './LineAreaChart';
 import { DonutChart } from './DonutChart';
 import { MediaDonutChart } from './MediaDonutChart';
+import { ArcChart } from './ArcChart';
+import { TinyAreaChart } from './TinyAreaChart';
+import { ResponsiveBarChart } from './BarChart';
 
-export { LineAreaChart, DonutChart, MediaDonutChart };
+export { LineAreaChart, DonutChart, MediaDonutChart, ArcChart, TinyAreaChart, ResponsiveBarChart as BarChart };

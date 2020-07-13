@@ -1,0 +1,102 @@
+[
+  {
+    "timestamp": "2020-07-06T10:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.9,
+      "cumValue": 1.0,
+      "level": "H",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T09:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.9,
+      "cumValue": 1.0,
+      "level": "H",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T08:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.8,
+      "cumValue": 1.0,
+      "level": "H",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T07:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.9,
+      "cumValue": 1.0,
+      "level": "H",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T06:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.0,
+      "cumValue": 0.9,
+      "level": "L",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T05:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.0,
+      "cumValue": 0.3,
+      "level": "L",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T04:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0,
+      "cumValue": 0,
+      "level": "L",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T03:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0,
+      "cumValue": 0,
+      "level": "L",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T02:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0,
+      "cumValue": 0,
+      "level": "L",
+      "type": "s"
+    }
+  },
+  {
+    "timestamp": "2020-07-06T01:00:00+09:00",
+    "id": null,
+    "risk": {
+      "value": 0.0,
+      "cumValue": 0,
+      "level": "L",
+      "type": "s"
+    }
+  }
+]
