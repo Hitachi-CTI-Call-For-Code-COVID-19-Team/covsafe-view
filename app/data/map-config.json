@@ -1,0 +1,27 @@
+{
+  "map": {
+    "base": {
+      "maxZoom": 10,
+      "minZoom": 1,
+      "dragging": true,
+      "zoomControl": true
+    },
+    "floor": {
+      "bounds": [
+        [0, 0],
+        [1080, 1920]
+      ]
+    },
+    "heat": {
+      "fitBoundsOnLoad": false,
+      "fitBoundsOnUpdate": false,
+      "max": 1,
+      "radius": 90,
+      "gradient": {
+        "0.3": "green",
+        "0.5": "orange",
+        "0.7": "red"
+      }
+    }
+  }
+}

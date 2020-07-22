@@ -43,20 +43,15 @@ import { withTranslation } from 'react-i18next';
 import {
   Container,
   Row,
-  Card,
-  CardBody,
-  Badge,
   Table,
-  CardTitle,
-  Progress,
-  Col
+  Col,
 } from './../../components';
 import { setupPage } from './../../components/Layout/setupPage';
 import { HeaderMain } from "../components/HeaderMain";
 
 import {
   TrSystem
-} from "./../Dashboards/System/components/trSystem";
+} from "./components/trSystem";
 
 const TrColors = [
   {

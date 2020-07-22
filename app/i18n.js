@@ -23,10 +23,12 @@ import dashboardEN from './locales/dashboard.en.json';
 import dashboardJP from './locales/dashboard.jp.json';
 import analyticsEN from './locales/analytics.en.json';
 import analyticsJP from './locales/analytics.jp.json';
+import advUploaderEN from './locales/adv-uploader.en.json';
+import advUploaderJP from './locales/adv-uploader.jp.json';
 
 const resources = {
-  en: { menus: menusEN, dashboard: dashboardEN, analytics: analyticsEN },
-  jp: { menus: menusJP, dashboard: dashboardJP, analytics: analyticsJP }
+  en: { menus: menusEN, dashboard: dashboardEN, analytics: analyticsEN, uploader: advUploaderEN },
+  jp: { menus: menusJP, dashboard: dashboardJP, analytics: analyticsJP, uploader: advUploaderJP }
 };
 
 i18n

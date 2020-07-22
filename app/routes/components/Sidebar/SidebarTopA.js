@@ -54,11 +54,13 @@ import {
 
 const avatarImg = require('./../../../images/icons/user.png');
 
+const basePath = process.env.BASE_PATH || '/';
+
 const faker = {
   name: {
-    firstName() { return 'Hiroshi'; },
-    lastName() { return 'Nakagoe'; },
-    jobTitle() { return 'Senior Manager' }
+    firstName() { return 'James'; },
+    lastName() { return 'Smith'; },
+    jobTitle() { return 'Stuff' }
   }
 };
 
@@ -67,29 +69,22 @@ const SidebarTopA = ({ t, i18n }) => (
     { /* START: Sidebar Default */ }
     <Sidebar.HideSlim>
       <Sidebar.Section className="pt-0">
-        <Link to="/user/profile-details" className="d-block">
+        <div>
           <Sidebar.HideSlim>
             <Avatar.Image
-              size="lg"
+              size="md"
               src={ avatarImg }
-              addOns={[
-                <AvatarAddOn.Icon 
-                  className="fa fa-circle"
-                  color="white"
-                  key="avatar-icon-bg"
-                />,
-                <AvatarAddOn.Icon 
-                  className="fa fa-circle"
-                  color="success"
-                  key="avatar-icon-fg"
-                />
-              ]}
             />
           </Sidebar.HideSlim>
-        </Link>
+        </div>
           
         <UncontrolledButtonDropdown>
-          <DropdownToggle tag='a' href="#" color="link" className="pl-0 pb-0 btn-profile sidebar__link">
+          <DropdownToggle
+            tag='a'
+            href="#"
+            color="link"
+            className="pl-0 pb-0 btn-profile sidebar__link"
+            onClick={e => e.preventDefault()} >
             { faker.name.firstName() } { faker.name.lastName() }
             <i className="fa fa-angle-down ml-2"></i>
           </DropdownToggle>
@@ -98,14 +93,8 @@ const SidebarTopA = ({ t, i18n }) => (
               { faker.name.firstName() } { faker.name.lastName() }
             </DropdownItem>
             <DropdownItem divider />
-            <DropdownItem tag={ Link } to="/user/profile-edit">
-              {t('menus:sidebar.menu.user.profile')}
-            </DropdownItem>
-            <DropdownItem tag={ Link } to="/user/settings-edit">
-            {t('menus:sidebar.menu.user.settings')}
-            </DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem tag={ 'a' } href="/logout">
+            {/* want to use Link to get basepath but it navigates to react link, so this is workaround */}
+            <DropdownItem tag={'a'} href={`${basePath}logout`}>
               <i className="fa fa-fw fa-sign-out mr-2"></i>
               {t('menus:sidebar.menu.user.logout')}
             </DropdownItem>

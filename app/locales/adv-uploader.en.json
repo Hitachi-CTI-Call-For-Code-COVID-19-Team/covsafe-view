@@ -1,0 +1,16 @@
+{
+  "title": "Advertisement Uploader",
+  "explain": "Fill the title and content as well as place a picture that atract your customers.",
+  "form": {
+    "title": "Title",
+    "content": "Content",
+    "upload": "Upload Your File",
+    "select": "Select Media to show",
+    "button": "Submit",
+    "placeholder": {
+      "title": "Put the adv title",
+      "content": "Fill whatever you want to make customers vibrant",
+      "upload": "browse for a file to upload. JPG and PNG are allowed. Please choose files under 2GB for upload."
+    }
+  }
+}

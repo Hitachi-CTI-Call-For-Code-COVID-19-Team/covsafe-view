@@ -2,6 +2,20 @@
   "toolbar": {
     "reset-layout": "Reset Layout"
   },
+  "index-overview": {
+    "title": "ANSHIN Index Overview",
+    "titles": {
+      "total": "Total",
+      "congestion": "Congestion",
+      "sanitization": "Sanitization",
+      "disinfection": "Disinfection"
+    },
+    "comments": {
+      "L": "Actions to Keep Clean",
+      "A": "Things You Need",
+      "H": "Urgent Action Required"
+    }
+  },
   "current-total-risks": {
     "title": "Current Total Risks",
     "last-update": "Last Update",

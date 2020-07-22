@@ -15,10 +15,8 @@ limitations under the License.
 */
 
 import React from 'react';
-import DOM from 'react-dom';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import L from 'leaflet';
 import { Map, ImageOverlay, withLeaflet } from 'react-leaflet';
 import { PingLayer } from 'react-leaflet-d3';
 import Control from './CustomControl';
@@ -37,9 +35,16 @@ class IndoorMap extends React.Component {
 
     const { config, floorConfig, heatConfig, pingConfig, sliderConfig, heatData } = this.props;
 
-    // set tentative height
+    // init map config
     const cnf = _.clone(config);
-    cnf.height = '444px';
+    cnf.height = '100px';
+    cnf.lat = 0;
+    cnf.lng = 0;
+    cnf.zoom = 0;
+    cnf.maxZoom = cnf.maxZoom || 10;
+    cnf.minZoom = cnf.minZoom || 0;
+    cnf.maxBounds = [[0, 0], [0, 0]];
+    cnf.zoomControl = cnf.zoomControl || true;
 
     // initialize state
     this.state = {
@@ -52,6 +57,7 @@ class IndoorMap extends React.Component {
         current: 0,
         list: heatData.map(e => new Date(e.timestamp)),
       },
+      heatData: heatData,
     };
 
     // set ping method
@@ -61,13 +67,27 @@ class IndoorMap extends React.Component {
   }
 
   _getCommonDivisor(a, b) {
-    // FIXME: return common divisor for 1920 x 768
-    return [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 384];
+    // FIXME: add the common divisor calculator
+    if (a === 720 && b === 1280) {
+      return [1, 2, 4, 5, 8, 10, 16, 20, 40, 80];
+    } else if (a === 1080 && b === 1920) {
+      return [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 24, 30, 40, 60, 120];
+    } else if (a === 1080 && b === 1920) {
+      return [1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 384];
+    } else if (a === 2160 && b === 3840) {
+      return [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 16, 20, 24, 30, 40, 48, 60, 80, 120, 240];
+    } else if (a === 4320 && b === 7690) {
+      return [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 16, 20, 24, 30, 32, 40, 48, 60, 80, 96, 120, 160, 240, 480];
+    } else if (a === 800 && b === 2000) {
+      return [1, 2, 4, 5, 8, 10, 16, 20, 25, 40, 50, 80, 100, 200, 400];
+    } else if (a === 1450 && b === 2000) {
+      return [1, 2, 5, 10, 25, 50];
+    }
   }
 
   _getDivisor(a, b, t) {
     const ary = this._getCommonDivisor(a, b);
-    const min = Math.floor(a / t);
+    const min = Math.ceil(a / t);
     return ary.find(e => e > min);
   }
 
@@ -81,79 +101,58 @@ class IndoorMap extends React.Component {
 
     const ratio = this.state.floorConfig.bounds[1][0] / this.state.floorConfig.bounds[1][1];
     const cnf = _.clone(this.state.config);
-    const height = Math.ceil(this.container.container.offsetWidth * ratio);
+
+    // update the height to fit map size
+    cnf.height = this.container.container.offsetWidth * ratio;
+    // new map size to fit the window size
     const devided = [
-      Math.ceil(height / divisor),
-      Math.ceil(this.container.container.offsetWidth / divisor)
+      cnf.height / divisor,
+      // don't know why, but ImageOverlay changes the map size ratio
+      this.container.container.offsetWidth / divisor * 1.024
+    ];
+    const bounds = [
+      [-devided[0] / 2, -devided[1] / 2],
+      [devided[0] / 2, devided[1] / 2],
     ];
 
-    cnf.maxBounds = [
-      [0, 0],
-      _.clone(devided),
-    ];
+    // init all params for map
+    cnf.divisor = divisor;
+    cnf.maxBounds = bounds;
     const flr = _.clone(this.state.floorConfig);
-    flr.bounds = [
-      [0, 0],
-      _.clone(devided),
-    ];
+    flr.bounds = bounds;
 
-    // window height will be adjusted by factor
-    cnf.height = height * this.state.config.heightFactor;
-
-    this.setState({
-      config: cnf,
-      floorConfig: flr,
+    // re-calculate heat map data
+    const heatData = this.state.heatData.map(t => {
+      return {
+        timestamp: t.timestamp,
+        data: t.data.map(d => ([
+          d[0] * devided[0] - (devided[0] / 2),
+          d[1] * devided[1] - (devided[1] / 2),
+          d[2]
+        ])),
+      };
     });
-    console.log(`leaflet map will be drawn within [0, 0] and [${devided}]`);
+
+    // not sure but leaflet doesn't reckon the state is updated at the timing the componentDidMount is called.
+    setTimeout((that) => {
+      that.setState({
+        config: cnf,
+        floorConfig: flr,
+        heatData: heatData,
+      });
+      // fit map into bounds
+      that.container.leafletElement.fitBounds(bounds);
+    }, 500, this);
+    
+    console.log(`leaflet map will be drawn within [0, 0] and [${devided}] divided by ${divisor} zoomed by ${cnf.zoom}`);
 
     // stop propagation for preventing the parent card moved
     // if (this.state.sliderConfig && this.state.heatStatus.list.length > 1) {
     //   L.DomEvent.disableClickPropagation(DOM.findDOMNode(this));
     // }
-    // L.DomEvent.disableClickPropagation(this.state.ref.current.container);
-    // console.log('-=-f=d-fa=d-a=-=-=-df=ad-fa=');
-    // const cntl = this.container.props.children.find(e => e && e.props && e.props.position && e.props.position == 'bottomright');
-    // const clone = React.cloneElement(cntl.props.children);
-    // console.log(DOM.findDOMNode(clone));
-    // console.log(DOM.findDOMNode(this));
-    // console.log(DOM.findDOMNode(this).querySelector('.leaflet-map-pane'));
-    // console.log(DOM.findDOMNode(this).querySelector('.leaflet-control-container'));
-    // L.DomEvent.disableClickPropagation(DOM.findDOMNode(this).querySelector('.leaflet-map-pane'));
-    // L.DomEvent.disableClickPropagation(DOM.findDOMNode(this).querySelector('.leaflet-control-container'));
-    // DOM.findDOMNode(this).addEventListener('click', (e) => {
-    //   e.stopPropagation();
-    // });
-    // DOM.findDOMNode(this).addEventListener('mousedown', (e) => {
-    //   e.stopPropagation();
-    // });
-    // DOM.findDOMNode(this).addEventListener('mousemove', (e) => {
-    //   e.stopPropagation();
-    // });
-    // DOM.findDOMNode(this).addEventListener('mouseup', (e) => {
-    //   e.stopPropagation();
-    // });
-    // L.DomEvent.on(DOM.findDOMNode(this), 'mousemove', L.DomEvent.stopPropagation);
-    // L.DomEvent
-    //   .disableClickPropagation(this.state.ref)
-    //   .disableScrollPropagation(this.state.ref)
-    // L.DomEvent.on(L.DomUtil.get(this.state.ref), 'mousedown', () => {});
   }
 
   componentWillUnmount() {
-    // DOM.findDOMNode(this).removeEventListener('mousedown', (e) => {
-    //   e.stopPropagation();
-    // });
-    // DOM.findDOMNode(this).removeEventListener('mousemove', (e) => {
-    //   e.stopPropagation();
-    // });
-    // DOM.findDOMNode(this).removeEventListener('mouseup', (e) => {
-    //   e.stopPropagation();
-    // });
-    // DOM.findDOMNode(this).removeEventListener('click', (e) => {
-    //   e.stopPropagation();
-    // });
-    // L.DomEvent.off(L.DomUtil.get(this.state.ref.current), 'mousedown', L.DomEvent.stopPropagation);
-    // L.DomEvent.off(L.DomUtil.get(this.state.ref), 'mousedown', () => {});
   }
 
   onChange(evt) {
@@ -191,8 +190,7 @@ class IndoorMap extends React.Component {
   }
 
   render() {
-    const { heatData } = this.props;
-    const { config, floorConfig, heatConfig, pingConfig, sliderConfig, heatStatus } = this.state;
+    const { config, floorConfig, heatConfig, pingConfig, sliderConfig, heatStatus, heatData } = this.state;
 
     return (
       <Map
@@ -206,6 +204,7 @@ class IndoorMap extends React.Component {
         zoomControl={config.zoomControl}
         attributionControl={false}
         style={{ width: '100%', height: config.height}}
+        zoomSnap={0}
       >
         <ImageOverlay
           url={floorConfig.url}
@@ -295,15 +294,10 @@ class IndoorMap extends React.Component {
 
 IndoorMap.propTypes = {
   config: PropTypes.exact({
-    heightFactor: PropTypes.number,
-    lat: PropTypes.number.isRequired,
-    lng: PropTypes.number.isRequired,
-    zoom: PropTypes.number.isRequired,
-    maxZoom: PropTypes.number.isRequired,
-    minZoom: PropTypes.number.isRequired,
-    dragging: PropTypes.bool.isRequired,
-    maxBounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
-    zoomControl: PropTypes.bool.isRequired,
+    maxZoom: PropTypes.number,
+    minZoom: PropTypes.number,
+    dragging: PropTypes.bool,
+    zoomControl: PropTypes.bool,
   }),
   floorConfig: PropTypes.exact({
     url: PropTypes.string.isRequired,

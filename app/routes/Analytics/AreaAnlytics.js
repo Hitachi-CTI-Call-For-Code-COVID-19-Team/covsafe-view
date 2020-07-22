@@ -43,20 +43,11 @@ import { withTranslation } from 'react-i18next';
 import {
   Container,
   Row,
-  Card,
-  CardBody,
-  Badge,
-  Table,
-  CardTitle,
-  Progress,
-  Col
+  Col,
 } from './../../components';
 import { setupPage } from './../../components/Layout/setupPage';
 import { HeaderMain } from "../components/HeaderMain";
 import { IndoorMap } from './../../components/Maps';
-import {
-  TrSystem
-} from "./../Dashboards/System/components/trSystem";
 
 const TrColors = [
   {
@@ -182,26 +173,6 @@ class AreaAnlytics extends React.Component {
             <div className="hr-text hr-text-left mt-2 mb-4 lead">
               <span>{t('analytics:areas.list.title')}</span>
             </div>
-            <Table responsive>
-              <thead>
-                <tr>
-                  <th>Areas</th>
-                  <th>ANSHIN Index</th>
-                  <th>Suggestions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <TrSystem
-                  colors={TrColors}
-                />
-                <TrSystem
-                  colors={TrColors}
-                />
-                <TrSystem
-                  colors={TrColors}
-                />
-              </tbody>
-            </Table>
           </Col>
         </Row>
       </Container>

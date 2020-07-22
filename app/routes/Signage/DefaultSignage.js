@@ -20,12 +20,14 @@ import i18n from 'i18next';
 import PropTypes from 'prop-types';
 import BarLoader from 'react-spinners/BarLoader';
 import { css } from "@emotion/core";
-import { withPageConfig } from './../../components/Layout/withPageConfig';
 import { Container, Row, Col } from './../../components';
+import { withPageConfig } from './../../components/Layout/withPageConfig';
 import { IndoorMap } from './../../components/Maps';
+import VerticalCarousel from './../../components/Carousel/VerticalCarousel';
+
 import { TimelineDefault } from './../components/Timeline/TimelineDefault';
 import { HeaderMain } from './../components/HeaderMain';
-import VerticalCarousel from './../../components/Carousel/VerticalCarousel';
+
 
 const override = css`
   display: block;
@@ -34,24 +36,16 @@ const override = css`
 
 // dummy data
 const MapConfig = {
-  heightFactor: 2,
-  lat: 9,
-  lng: 10,
-  zoom: 5,
   maxZoom: 5,
   minZoom: 5,
   dragging: true,
-  maxBounds: [
-    [0, 0],
-    [768, 1920]
-  ],
   zoomControl: false,
 };
 const FloorMapConfig = {
-  url: require('../../images/map/floor.png'),
+  url: require('../../images/map/floormap.png'),
   bounds: [
     [0, 0],
-    [768, 1920]
+    [1080, 1920]
   ]
 };
 const HeatMapConfig = {
@@ -61,6 +55,13 @@ const HeatMapConfig = {
   radius: 20,
   gradient: {0.3: 'green', 0.5: 'orange', 0.7: 'red'},
 };
+const PingMapConfig = {
+  duration: 1800,
+  fps: 100,
+  radiusRange: [3, 50]
+};
+
+
 const points = (typ, fix, min, max, freq, val) => {
   let ary = [];
   for (var i = min; i < max; i++) {
@@ -87,11 +88,6 @@ const HeatData = [{
   ],
 }];
 
-const PingMapConfig = {
-  duration: 1800,
-  fps: 100,
-  radiusRange: [3, 50]
-};
 
 const SIGNAGE_DATA = [{
   time: '2020-06-19T10:00:00+09:00',

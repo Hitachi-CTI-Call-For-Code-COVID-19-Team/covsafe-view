@@ -57,7 +57,7 @@ after the step to prod build, do below.
 
 ```sh
 # need arguments for deployment. see help message from `npm run deploy:ibm`
-npm run deploy:ibm -- jp-tok c4c-covid-19 management-console demo hello
+npm run deploy:ibm -- jp-tok c4c-covid-19 covsafe-view covsafe view create
 ```
 
 ## Map Coordinate System

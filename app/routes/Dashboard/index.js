@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import { DraggableDashboard } from './DraggableDashboard';
 import { Dashboard } from './Dashboard';
 
-export { DraggableDashboard, Dashboard }; 
+export { Dashboard }; 

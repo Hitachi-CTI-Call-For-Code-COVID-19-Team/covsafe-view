@@ -77,7 +77,7 @@ const getContents = (req, res) => {
 };
 
 // manager contents requires authentication
-app.get(/\/((dashboard|analytics|suggestions|user)(\/.*)*)*$/,
+app.get(/\/((dashboard|analytics|suggestions|user|uploader)(\/.*)*)*$/,
   passport.authenticate(WebAppStrategy.STRATEGY_NAME), getContents);
 
 // not need authentication on signage mode

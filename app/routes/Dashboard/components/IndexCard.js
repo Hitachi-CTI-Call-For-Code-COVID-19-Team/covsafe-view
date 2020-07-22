@@ -56,7 +56,7 @@ const IndexCard = (props) => {
     <Card className='mb-3 bg-none mb-lg-0'>
       <CardBody className='pb-0 px-2 pt-1'>
         <div className='d-flex mb-4 px-2 pt-2'>
-          <span>
+          <span style={{ maxWidth: '60%' }}>
             <h4 className='my-4 fw-300'>{title}</h4>
             {
               link && (

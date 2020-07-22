@@ -14,21 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React from 'react';
+import { AdvertisementForm } from './AdvertisementForm';
 
-import {
-  Navbar,
-  Nav,
-  NavItem,
-  SidebarTrigger
-} from './../../components';
-
-export const DashboardNavbar = () => (
-  <Navbar light expand="xs" fluid>
-    <Nav navbar>
-      <NavItem className="mr-3">
-        <SidebarTrigger/>
-      </NavItem>
-    </Nav>
-  </Navbar>
-);
+export { AdvertisementForm }; 

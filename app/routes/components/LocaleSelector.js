@@ -43,8 +43,9 @@ class LocaleSelector extends React.Component {
       <UncontrolledButtonDropdown direction={ down ? "down" : "up" } className={ className }>
         <DropdownToggle
           tag="a"
-          href="javascript:undefined;"
+          href="#"
           className={classNames('btn-switch-version', { 'sidebar__link': sidebar })}
+          onClick={e => e.preventDefault()}
         >
           {
             render ? render(i18n.language) : (

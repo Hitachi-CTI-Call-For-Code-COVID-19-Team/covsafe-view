@@ -48,12 +48,9 @@ import {
 // ----------- Pages Imports ---------------
 import { Dashboard } from './Dashboard';
 import Signage from './Signage';
-import Suggestions from './Suggestions';
 import { AreaAnlytics, IndividualAnlytics } from './Analytics';
+import { AdvertisementForm } from './Form';
 
-import ProfileDetails from './Apps/ProfileDetails';
-import ProfileEdit from './Apps/ProfileEdit';
-import SettingsEdit from './Apps/SettingsEdit';
 import Error404 from './Error404';
 
 // ----------- Layout Imports ---------------
@@ -65,24 +62,20 @@ import { DashboardSidebar } from './../layout/components/DashboardSidebar';
 export const RoutedContent = () => {
   return (
     <Switch>
-      <Redirect from="/" to="/dashboard" exact />
+      <Redirect from='/' to='/dashboard' exact />
       
-      <Route path="/dashboard" exact component={Dashboard} />
+      <Route path='/dashboard' exact component={Dashboard} />
 
-      <Route path="/analytics/areas" exact component={AreaAnlytics} />
-      <Route path="/analytics/individuals" exact component={IndividualAnlytics} />
+      <Route path='/analytics/areas' exact component={AreaAnlytics} />
+      <Route path='/analytics/individuals' exact component={IndividualAnlytics} />
 
-      <Route path='/suggestions' exact component={Suggestions} />
-      <Route path="/signage-mode" exact component={Signage} />
+      <Route path='/uploader' exact component={AdvertisementForm} />
+      <Route path='/signage-mode' exact component={Signage} />
 
-      <Route path="/user/profile-details" exact component={ ProfileDetails } />
-      <Route path="/user/profile-edit" exact component={ ProfileEdit }  />
-      <Route path="/user/settings-edit" exact component={ SettingsEdit } />
-
-      <Route component={Error404} path="/error-404" />
+      <Route component={Error404} path='/error-404' />
 
       { /* default page: 404 */ }
-      <Redirect to="/error-404" />
+      <Redirect to='/error-404' />
     </Switch>
   );
 };
@@ -90,7 +83,7 @@ export const RoutedContent = () => {
 export const RoutedNavbars  = () => (
   <Switch>
     { /* Other Navbars: */}
-    <Route component={ SignageNavbar } path="/signage-mode" />
+    <Route component={ SignageNavbar } path='/signage-mode' />
     { /* Default Navbar: */}
     <Route component={ DashboardNavbar } />
   </Switch>  

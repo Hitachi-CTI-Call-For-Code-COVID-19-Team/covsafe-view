@@ -24,11 +24,11 @@ const EasyTable = (props) => {
   const { headers, data } = props;
 
   return (
-    <Table responsive striped className="mb-0">
+    <Table responsive striped className='mb-0'>
       <thead>
         <tr>
           {
-            headers.map((h) => (<th className="bt-0">{h}</th>))
+            headers.map((h, i) => (<th className='bt-0' key={i}>{h}</th>))
           }
         </tr>
       </thead>
@@ -38,16 +38,16 @@ const EasyTable = (props) => {
             data.map((d, i) => (
               <tr key={i}>
                 {
-                  headers.map((h) => {
+                  headers.map((h, j) => {
                     if (typeof d[h] === 'string') {
                       return (
-                        <td className="align-middle">
+                        <td className='align-middle' key={j}>
                           {d[h]}
                         </td>
                       );
                     } else if (typeof d[h] === 'function') {
                       return (
-                        <td className="align-middle">
+                        <td className='align-middle' key={j}>
                           {d[h]()}
                         </td>
                       )

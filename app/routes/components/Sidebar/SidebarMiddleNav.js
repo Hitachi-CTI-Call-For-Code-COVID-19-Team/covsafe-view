@@ -64,9 +64,9 @@ const SidebarMiddleNav = ({ t, i18n }) => (
       />
     </SidebarMenu.Item>
     <SidebarMenu.Item
-      icon={<i className="fa fa-fw fa-thumbs-o-up"></i>}
-      title={t('menus:sidebar.menu.suggestions')}
-      to='/suggestions'
+      icon={<i className="fa fa-fw fa-upload"></i>}
+      title={t('menus:sidebar.menu.uploader')}
+      to='/uploader'
     />
     <SidebarMenu.Item
       icon={<i className="fa fa-fw fa-map-signs"></i>}
