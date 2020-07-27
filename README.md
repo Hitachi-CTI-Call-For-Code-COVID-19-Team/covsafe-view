@@ -62,3 +62,9 @@ npm run deploy:ibm -- jp-tok c4c-covid-19 covsafe-view covsafe view create
 
 ## Map Coordinate System
 
+To be updated.
+
+## How to Dev (Tips)
+
+- If you'd like to import CSS, please add a file linked to the target css into `app/styles/plugins/`
+

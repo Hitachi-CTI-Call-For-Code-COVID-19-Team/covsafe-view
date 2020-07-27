@@ -54,3 +54,7 @@ export default i18n;
 export function getLanguage(lng) {
   return lng === 'en' ? 'English' : lng === 'jp' ? '日本語' : 'Unknown';
 }
+
+export function getLocale(lng) {
+  return lng === 'en' ? 'en-US' : lng === 'jp' ? 'ja-JP' : 'Unknown';
+}

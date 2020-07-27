@@ -33,18 +33,20 @@ class IndoorMap extends React.Component {
   constructor(props) {
     super(props);
 
-    const { config, floorConfig, heatConfig, pingConfig, sliderConfig, heatData } = this.props;
+    const { style, config, floorConfig, heatConfig, pingConfig, sliderConfig, heatData } = this.props;
 
     // init map config
     const cnf = _.clone(config);
-    cnf.height = '100px';
+    cnf.width = style ? (style.width || '100%') : '100%';
+    cnf.height = style ? (style.height || '100px') : '100px';
     cnf.lat = 0;
     cnf.lng = 0;
     cnf.zoom = 0;
     cnf.maxZoom = cnf.maxZoom || 10;
     cnf.minZoom = cnf.minZoom || 0;
     cnf.maxBounds = [[0, 0], [0, 0]];
-    cnf.zoomControl = cnf.zoomControl || true;
+    cnf.zoomControl = cnf.zoomControl === false ? false : true;
+    cnf.scrollWheelZoom = cnf.scrollWheelZoom === false ? false : true;
 
     // initialize state
     this.state = {
@@ -103,12 +105,12 @@ class IndoorMap extends React.Component {
     const cnf = _.clone(this.state.config);
 
     // update the height to fit map size
-    cnf.height = this.container.container.offsetWidth * ratio;
+    cnf.height = this.map.container.offsetWidth * ratio;
     // new map size to fit the window size
     const devided = [
       cnf.height / divisor,
       // don't know why, but ImageOverlay changes the map size ratio
-      this.container.container.offsetWidth / divisor * 1.024
+      this.map.container.offsetWidth / divisor * 1.024
     ];
     const bounds = [
       [-devided[0] / 2, -devided[1] / 2],
@@ -117,6 +119,7 @@ class IndoorMap extends React.Component {
 
     // init all params for map
     cnf.divisor = divisor;
+    cnf.devided = devided;
     cnf.maxBounds = bounds;
     const flr = _.clone(this.state.floorConfig);
     flr.bounds = bounds;
@@ -133,16 +136,33 @@ class IndoorMap extends React.Component {
       };
     });
 
+    // adjust radius of heat points
+    const heat = _.clone(this.state.heatConfig);
+    if (this.map.container.offsetWidth < 575.98) {
+      heat.radius = 30;
+    } else if (this.map.container.offsetWidth < 767.98) {
+      heat.radius = 40;
+    } else if (this.map.container.offsetWidth < 991.98) {
+      heat.radius = 60;
+    } else if (this.map.container.offsetWidth < 1024.98) {
+      heat.radius = 75;
+    } else {
+      heat.radius = 100;
+    }
+
     // not sure but leaflet doesn't reckon the state is updated at the timing the componentDidMount is called.
     setTimeout((that) => {
       that.setState({
         config: cnf,
         floorConfig: flr,
+        heatConfig: heat,
         heatData: heatData,
       });
+
       // fit map into bounds
-      that.container.leafletElement.fitBounds(bounds);
-    }, 500, this);
+      that.map.leafletElement.invalidateSize();
+      that.map.leafletElement.fitBounds(bounds);
+    }, 100, this);
     
     console.log(`leaflet map will be drawn within [0, 0] and [${devided}] divided by ${divisor} zoomed by ${cnf.zoom}`);
 
@@ -176,8 +196,10 @@ class IndoorMap extends React.Component {
       return;
     }
 
+    // switch lat/lng
     const ll = latlng.reduce((p, e, i) => {
-      p[i ^ 1] = e;
+      let ee = e * this.state.config.devided[i] - (this.state.config.devided[i] / 2);
+      p[i ^ 1] = ee;
       return p;
     }, []);
     this.pingLayer.ping(ll, classNames(classes['ping']));
@@ -186,15 +208,17 @@ class IndoorMap extends React.Component {
     const id = setInterval((that, latlng) => {
       that.pingLayer.ping(latlng, classNames(classes['ping']));
       clearInterval(id);
-    }, this.state.pingConfig.duration * 2, this, ll);
+    }, this.state.pingConfig.duration, this, ll);
   }
 
   render() {
+    const { style, className } = this.props;
     const { config, floorConfig, heatConfig, pingConfig, sliderConfig, heatStatus, heatData } = this.state;
 
     return (
       <Map
-        ref={el => (this.container = el)}
+        className={classNames(className)}
+        ref={el => (this.map = el)}
         center={{ lat: config.lat, lng: config.lng }}
         zoom={config.zoom}
         maxZoom={config.maxZoom}
@@ -202,11 +226,12 @@ class IndoorMap extends React.Component {
         dragging={config.dragging}
         maxBounds={config.maxBounds}
         zoomControl={config.zoomControl}
-        attributionControl={false}
-        style={{ width: '100%', height: config.height}}
+        scrollWheelZoom={config.scrollWheelZoom}
+        style={{ width: config.width, height: config.height, ...(style || {})}}
         zoomSnap={0}
       >
         <ImageOverlay
+          ref={el => (this.indoor = el)}
           url={floorConfig.url}
           bounds={floorConfig.bounds}
         />
@@ -240,21 +265,13 @@ class IndoorMap extends React.Component {
             <Control position='bottomright'>
               <TipSlider
                 className={classNames(classes['slider-area'])}
-                // marks={{
-                //   number: {
-                //     style: {
-                //       marginTop: '0.5rem',
-                //     },
-                //     label: `${value}`
-                //   },
-                // }}
                 min={heatStatus.list[heatStatus.list.length - 1].getTime()}
                 max={heatStatus.list[0].getTime()}
                 value={heatStatus.list[heatStatus.current].getTime()}
                 step={heatStatus.list[0].getTime() - heatStatus.list[1].getTime()}
                 dots={false}
                 tipFormatter={value => (
-                  `${(new Date(value)).toLocaleDateString('ja-JP')} ${(new Date(value)).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`
+                  `${(new Date(value)).toLocaleDateString('en-US')} ${(new Date(value)).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
                 )}
                 tipProps={{
                   placement: "top",
@@ -269,13 +286,13 @@ class IndoorMap extends React.Component {
                 trackStyle={{
                   height: '1rem',
                   borderRadius: 0,
-                  backgroundColor: 'rgba(255, 11, 11, 0.64)'
+                  backgroundColor: 'rgb(38 147 241 / 91%)'
                 }}
                 handleStyle={{
                   borderRadius: 0,
                   height: '1.5rem',
-                  backgroundColor: 'rgba(218, 50, 50, 0.88)',
-                  borderColor: 'rgba(218, 50, 50, 0.88)'
+                  backgroundColor: 'rgb(38 147 241 / 91%)',
+                  borderColor: 'rgb(38 147 241 / 91%)'
                 }}
                 dotStyle={{ display: 'none' }}
                 onChange={this.onChange.bind(this)}
@@ -298,6 +315,7 @@ IndoorMap.propTypes = {
     minZoom: PropTypes.number,
     dragging: PropTypes.bool,
     zoomControl: PropTypes.bool,
+    scrollWheelZoom: PropTypes.bool,
   }),
   floorConfig: PropTypes.exact({
     url: PropTypes.string.isRequired,

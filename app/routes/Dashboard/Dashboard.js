@@ -18,34 +18,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { withTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import riskValueConverter from '../../utils/riskValueConverter';
+import converter from '../../utils/converter';
 
 import {
-  Button,
   Container,
   Row,
-  Card,
-  CardBody,
   Col,
   Progress,
-  Table,
 } from './../../components';
 import { IndexCard } from './components';
 import { IndoorMap } from './../../components/Maps';
 import { EasyTable } from './../../components/Tables';
 import { Loading } from './../../components/Loading/Loading';
-
 import { HeaderMain } from './../components/HeaderMain';
 
 import classes from './Dashboard.scss';
-
 import faker from '../../utils/faker';
 
 // constants
 const now = new Date();
 const URLs = [
+  // map config
+  '',
   // assets
   '',
   // total risks
@@ -67,15 +62,6 @@ const DonutChartStyles = {
   endAngle: 360,
 };
 
-const MapConfig = require('./../../data/map-config.json');
-const BaseConfig = MapConfig.map.base;
-const FloorMapConfig = {
-  url: require('../../images/map/floormap.png'),
-  ...MapConfig.map.floor,
-};
-const HeatMapConfig = MapConfig.map.heat;
-const SliderConfig = {};
-
 // dummy data
 const SuggestionsData = {
   // headers: ['日時', '提案', '原因', '深刻度', 'エリア・従業員'],
@@ -84,7 +70,7 @@ const SuggestionsData = {
     'Date': 'Wed Jun 10 2020 20:47:39',
     'Suggestions': 'Too congested',
     'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={80} style={{height: '5px'}} color='danger' />),
+    'Severity': () => (<Progress value={80} slim color='danger' />),
     'Areas/Workers': 'Area-05',
     // '日時': '2020/6/19 金曜日 13:47:39',
     // '提案': '混雑度が一定水準を超えました。このエリアの従業員は配置移動もしくは休憩が必要です',
@@ -95,7 +81,7 @@ const SuggestionsData = {
     'Date': 'Wed Jun 10 2020 19:47:39',
     'Suggestions': 'Recommend to keep a social distance',
     'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={50} style={{height: '5px'}} color='yellow' />),
+    'Severity': () => (<Progress value={50} slim color='yellow' />),
     'Areas/Workers': 'Area-05',
     // '日時': '2020/6/19 金曜日 13:30:39',
     // '提案': 'ソーシャルディスタンスの維持を推奨します',
@@ -106,7 +92,7 @@ const SuggestionsData = {
     'Date': 'Wed Jun 10 2020 19:37:39',
     'Suggestions': 'Few people wahsed their hands',
     'Causes': 'Type: Washing Hands Detection',
-    'Severity': () => (<Progress value={90} style={{height: '5px'}} color='danger' />),
+    'Severity': () => (<Progress value={90} slim color='danger' />),
     'Areas/Workers': 'Area-01',
     // '日時': '2020/6/19 金曜日 12:43:54',
     // '提案': '手洗いを実施している来訪者が一定水準を下回りました。手洗い協力の要請が必要です',
@@ -117,7 +103,7 @@ const SuggestionsData = {
     'Date': 'Wed Jun 10 2020 10:47:39',
     'Suggestions': 'Recommend to keep a social distance',
     'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={57} style={{height: '5px'}} color='yellow' />),
+    'Severity': () => (<Progress value={57} slim color='yellow' />),
     'Areas/Workers': 'Area-10',
     // '日時': '2020/6/19 金曜日 10:27:19',
     // '提案': 'ソーシャルディスタンスの維持を推奨します',
@@ -128,7 +114,7 @@ const SuggestionsData = {
     'Date': 'Wed Jun 10 2020 01:47:39',
     'Suggestions': 'Recommend to keep a social distance',
     'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={51} style={{height: '5px'}} color='yellow' />),
+    'Severity': () => (<Progress value={51} slim color='yellow' />),
     'Areas/Workers': 'Area-14',
     // '日時': '2020/6/19 金曜日 10:00:51',
     // '提案': 'ソーシャルディスタンスの維持を推奨します',
@@ -137,61 +123,6 @@ const SuggestionsData = {
     // 'エリア・従業員': 'エリア 14',
   }]
 };
-
-
-// const points = (typ, fix, min, max, freq, val) => {
-//   let ary = [];
-//   for (var i = min; i < max; i++) {
-//     for (var j = 0.0; j < 1; j += freq) {
-//       let calc = typ === 'vertical' ? [i + j, fix, val] : [fix, i + j, val];
-//       ary.push(calc);
-//     }
-//   }
-//   return ary;
-// };
-// const HeatData = [{
-//   timestamp: '2020-06-19T14:00:00+09:00',
-//   data: [
-//     // 7-casher vertical line
-//     ...points('vertical', 9, 12, 24, 0.5, 0.74),
-//     // 9-10 holizonal line
-//     ...points('holizonal', 13, 9, 20, 0.2, 1),
-//     // casher-10 holizonal line
-//     ...points('holizonal', 22, 12, 20, 1, 0.3),
-//     // event-space vertical line
-//     ...points('vertical', 42, 4, 10, 0.5, 0.74),
-//     // restroom vertical line
-//     ...points('vertical', 2, 25, 30, 0.5, 0.74),
-//   ]
-// }, {
-//   timestamp: '2020-06-19T13:00:00+09:00',
-//   data: [
-//     // 7-casher vertical line
-//     ...points('vertical', 9, 16, 24, 0.5, 0.74),
-//     // 9-10 holizonal line
-//     ...points('holizonal', 13, 9, 14, 0.2, 1),
-//     // casher-10 holizonal line
-//     ...points('holizonal', 22, 12, 20, 1, 0.3),
-//     // event-space vertical line
-//     ...points('vertical', 42, 4, 10, 0.5, 0.74),
-//     // restroom vertical line
-//     ...points('vertical', 2, 25, 30, 0.5, 0.74),
-//   ]
-// }, {
-//   timestamp: '2020-06-19T12:00:00+09:00',
-//   data: [
-//     // 7-casher vertical line
-//     ...points('vertical', 9, 20, 24, 0.5, 0.74),
-//     // 9-10 holizonal line
-//     ...points('holizonal', 13, 9, 12, 0.2, 1),
-//     // casher-10 holizonal line
-//     ...points('holizonal', 22, 12, 20, 1, 0.3),
-//     // event-space vertical line
-//     ...points('vertical', 42, 4, 15, 0.5, 0.74),
-//     // restroom vertical line
-//     ...points('vertical', 2, 25, 30, 0.5, 0.74),
-//   ]
-// }];
 
 class Dashboard extends React.Component {
   static propTypes = {
@@ -205,6 +136,7 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      mapConfig: null,
       assets: null,
       total: null,
       congestion: null,
@@ -221,32 +153,34 @@ class Dashboard extends React.Component {
     .then(responses => Promise.all(responses.map(res => res.json())))
     .then(jsons => {
       this.setState({
-        assets: jsons[0], 
-        total: jsons[1],
-        congestion: jsons[2],
-        sanitization: jsons[3],
-        disinfection: jsons[4],
-        congestionMap: riskValueConverter.toHeat(json[1]),
+        mapConfig: jsons[0],
+        assets: jsons[1], 
+        total: jsons[2],
+        congestion: jsons[3],
+        sanitization: jsons[4],
+        disinfection: jsons[5],
+        congestionMap: converter.risk.toHeat(jsons[1], jsons[0].map.floor.bounds[1], jsons[3]),
         loading: false,
       });
     })
     .catch(e => {
       // FIXME: switch fallback mode and remove interval part
       this.setState({
+        mapConfig: faker.mapConfig,
         assets: faker.assets,
         total: faker.totalRisks(now, new Date(now.getTime() - 24 * 60 * 60000), 30 * 60000),
-        congestion: riskValueConverter.mean(
+        congestion: converter.risk.mean(
           faker.risks('congestion', now, new Date(now.getTime() - 24 * 60 * 60000), 60 * 60000)
         ),
-        sanitization: riskValueConverter.mean(
+        sanitization: converter.risk.mean(
           faker.risks('sanitization', now, new Date(now.getTime() - 24 * 60 * 60000), 30 * 60000)
         ),
-        disinfection: riskValueConverter.mean(
+        disinfection: converter.risk.mean(
           faker.risks('disinfection', now, new Date(now.getTime() - 24 * 60 * 60000), 30 * 60000)
         ),
-        congestionMap: riskValueConverter.toHeat(
+        congestionMap: converter.risk.toHeat(
           faker.assets,
-          FloorMapConfig.bounds[1],
+          faker.mapConfig.map.floor.bounds[1],
           faker.risks('congestion', now, new Date(now.getTime() - 24 * 60 * 60000), 60 * 60000),
         ),
         loading: false,
@@ -256,7 +190,7 @@ class Dashboard extends React.Component {
   
   render() {
     const { fluid, t } = this.props;
-    const { total, congestion, sanitization, disinfection, congestionMap } = this.state;
+    const { mapConfig, total, congestion, sanitization, disinfection, congestionMap } = this.state;
 
     if (this.state.loading) {
       return (
@@ -355,11 +289,22 @@ class Dashboard extends React.Component {
                     </span>
                   </div>
                   <IndoorMap
-                    config={BaseConfig}
-                    floorConfig={FloorMapConfig}
-                    heatConfig={HeatMapConfig}
+                    config={{
+                      ...mapConfig.map.base,
+                      maxZoom: 10,
+                      minZoom: 1,
+                      dragging: true,
+                      zoomControl: true,
+                      scrollWheelZoom: true,
+                    }}
+                    floorConfig={{
+                      ...mapConfig.map.floor,
+                    }}
+                    heatConfig={{
+                      ...mapConfig.map.heat,
+                    }}
                     heatData={congestionMap}
-                    sliderConfig={SliderConfig}
+                    sliderConfig={{}}
                   />
                 </div>
               </Col>

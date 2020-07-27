@@ -47,112 +47,6 @@ import {
 } from './../../components';
 import { setupPage } from './../../components/Layout/setupPage';
 import { HeaderMain } from "../components/HeaderMain";
-import { IndoorMap } from './../../components/Maps';
-
-const TrColors = [
-  {
-    fill: "primary-02",
-    stroke: "primary"
-  },
-  {
-    fill: "purple-02",
-    stroke: "purple"
-  },
-  {
-    fill: "success-02",
-    stroke: "success"
-  },
-  {
-    fill: "yellow-02",
-    stroke: "yellow"
-  }
-];
-
-const MapConfig = {
-  // we decide the map window size by following floorMapConfig.bounds
-  // but sometimes we like to get higher height. heightFactor is useful for it.
-  heightFactor: 1,
-  lat: 18,
-  lng: 44,
-  zoom: 4,
-  maxZoom: 10,
-  minZoom: 1,
-  dragging: true,
-  maxBounds: [
-    [0, 0],
-    [768, 1920]
-  ],
-  zoomControl: true,
-};
-const FloorMapConfig = {
-  url: require('../../images/map/floor.png'),
-  bounds: [
-    [0, 0],
-    [768, 1920]
-  ]
-};
-const HeatMapConfig = {
-  fitBoundsOnLoad: false,
-  fitBoundsOnUpdate: false,
-  max: 1,
-  radius: 20,
-  gradient: { 0.3: 'green', 0.5: 'orange', 0.7: 'red' },
-};
-const points = (typ, fix, min, max, freq, val) => {
-  let ary = [];
-  for (var i = min; i < max; i++) {
-    for (var j = 0.0; j < 1; j += freq) {
-      let calc = typ === 'vertical' ? [i + j, fix, val] : [fix, i + j, val];
-      ary.push(calc);
-    }
-  }
-  return ary;
-};
-
-const HeatData = [{
-  timestamp: '2020-06-19T14:00:00+09:00',
-  data: [
-    // 7-casher vertical line
-    ...points('vertical', 9, 12, 24, 0.5, 0.74),
-    // 9-10 holizonal line
-    ...points('holizonal', 13, 9, 20, 0.2, 1),
-    // casher-10 holizonal line
-    ...points('holizonal', 22, 12, 20, 1, 0.3),
-    // event-space vertical line
-    ...points('vertical', 40, 4, 10, 0.5, 0.74),
-    // restroom vertical line
-    ...points('vertical', 2, 25, 30, 0.5, 0.74),
-  ]
-}, {
-  timestamp: '2020-06-19T13:00:00+09:00',
-  data: [
-    // 7-casher vertical line
-    ...points('vertical', 9, 16, 24, 0.5, 0.74),
-    // 9-10 holizonal line
-    ...points('holizonal', 13, 9, 14, 0.2, 1),
-    // casher-10 holizonal line
-    ...points('holizonal', 22, 12, 20, 1, 0.3),
-    // event-space vertical line
-    ...points('vertical', 40, 4, 10, 0.5, 0.74),
-    // restroom vertical line
-    ...points('vertical', 2, 25, 30, 0.5, 0.74),
-  ]
-}, {
-  timestamp: '2020-06-19T12:00:00+09:00',
-  data: [
-    // 7-casher vertical line
-    ...points('vertical', 9, 20, 24, 0.5, 0.74),
-    // 9-10 holizonal line
-    ...points('holizonal', 13, 9, 12, 0.2, 1),
-    // casher-10 holizonal line
-    ...points('holizonal', 22, 12, 20, 1, 0.3),
-    // event-space vertical line
-    ...points('vertical', 40, 4, 15, 0.5, 0.74),
-    // restroom vertical line
-    ...points('vertical', 2, 25, 30, 0.5, 0.74),
-  ]
-}];
-const SliderConfig = {};
 
 class AreaAnlytics extends React.Component {
   render() {
@@ -171,7 +65,7 @@ class AreaAnlytics extends React.Component {
         <Row>
           <Col lg={12}>
             <div className="hr-text hr-text-left mt-2 mb-4 lead">
-              <span>{t('analytics:areas.list.title')}</span>
+              <span>{t('analytics:areas.list.title')} (Coming Soon)</span>
             </div>
           </Col>
         </Row>

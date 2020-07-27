@@ -7,6 +7,7 @@
       "zoomControl": true
     },
     "floor": {
+      "url": "",
       "bounds": [
         [0, 0],
         [1080, 1920]
@@ -22,6 +23,11 @@
         "0.5": "orange",
         "0.7": "red"
       }
+    },
+    "ping": {
+      "duration": 3000,
+      "fps": 100,
+      "radiusRange": [3, 70]
     }
   }
 }

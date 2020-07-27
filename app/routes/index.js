@@ -54,9 +54,9 @@ import { AdvertisementForm } from './Form';
 import Error404 from './Error404';
 
 // ----------- Layout Imports ---------------
-import { DashboardNavbar } from './../layout/components/DashboardNavbar';
-import { SignageNavbar } from './../layout/components/SignageNavbar';
-import { DashboardSidebar } from './../layout/components/DashboardSidebar';
+import { DashboardNavbar } from './components/Navbars/DashboardNavbar';
+import { SignageNavbar } from './components/Navbars/SignageNavbar';
+import { DashboardSidebar } from './components/Sidebars/DashboardSidebar';
 
 //------ Route Definitions --------
 export const RoutedContent = () => {
@@ -82,8 +82,8 @@ export const RoutedContent = () => {
 
 export const RoutedNavbars  = () => (
   <Switch>
-    { /* Other Navbars: */}
     <Route component={ SignageNavbar } path='/signage-mode' />
+
     { /* Default Navbar: */}
     <Route component={ DashboardNavbar } />
   </Switch>  

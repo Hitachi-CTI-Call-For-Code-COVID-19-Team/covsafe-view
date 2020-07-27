@@ -1,0 +1,35 @@
+@media (min-width: 992px) {
+  .logo {
+    width: 20vw;
+  }
+  .subtitle {
+    font-size: 2.0rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .logo {
+    width: 30vw;
+  }
+  .subtitle {
+    font-size: 2.0rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .logo {
+    width: 30vw;
+  }
+  .subtitle {
+    font-size: 1.0rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .logo {
+    width: 40vw;
+  }
+  .subtitle {
+    font-size: 0.8rem;
+  }
+}

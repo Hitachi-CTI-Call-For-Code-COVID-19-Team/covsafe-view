@@ -39,46 +39,59 @@ SOFTWARE.
 */
 
 import React from 'react';
-import { withTranslation } from 'react-i18next';
+
 import {
-  Container,
-  Row,
-  Col,
-} from './../../components';
-import { setupPage } from './../../components/Layout/setupPage';
-import { HeaderMain } from "../components/HeaderMain";
+  Button,
+  Sidebar,
+  UncontrolledPopover,
+  PopoverBody
+} from '../../../components';
 
-class IndividualAnlytics extends React.Component {
-  render() {
-    const { t } = this.props;
+import { FooterAuth } from '../Pages/FooterAuth';
+import { FooterText } from '../FooterText';
+import LocaleSelector from '../LocaleSelector';
 
-    return (
-      <Container>
-        <Row className="mb-2">
-          <Col lg={12}>
-            <HeaderMain
-              title={t('menus:main.analytics.individuals.title')}
-              className="mb-4 mb-lg-5"
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={12}>
-            
-          </Col>
-        </Row>
-        <Row>
-          <Col lg={12}>
-            <div className="hr-text hr-text-left mt-2 mb-4 lead">
-              <span>{t('analytics:individuals.list.title')} (Coming Soon)</span>
-            </div>
-          </Col>
-        </Row>
-      </Container>
-    );
-  }
-}
+const SidebarBottomA = () => (
+  <React.Fragment>
+    { /* START Desktop */ }
+    <Sidebar.HideSlim>
+      <Sidebar.Section className="pb-0">
+        <LocaleSelector sidebar />
+      </Sidebar.Section>
+      <Sidebar.Section>
+        <FooterAuth className="text-muted" />
+      </Sidebar.Section>
+    </Sidebar.HideSlim>
+    { /* END Desktop */ }
 
-const withPageSettings = setupPage({ pageTitle: 'Individual Anlytics' })(IndividualAnlytics);
-const IndividualAnlyticsWithTranslation = withTranslation()(withPageSettings);
-export { IndividualAnlyticsWithTranslation as IndividualAnlytics };
+    { /* START Slim Only */ }
+    <Sidebar.ShowSlim>
+      <Sidebar.Section className="text-center">
+        { /* Slim Version Selector */ }
+        <LocaleSelector
+          sidebar
+          render={() => (
+            <i className="fa fa-fw fa-toggle-on"></i>
+          )}
+        />
+
+        { /* Footer Text as Tooltip */ }
+        <Button
+          id="UncontrolledSidebarPopoverFooter"
+          color="link"
+          className="sidebar__link p-0 mt-3"
+        >
+          <i className="fa fa-fw fa-copyright"></i>
+        </Button>
+        <UncontrolledPopover placement="left-end" target="UncontrolledSidebarPopoverFooter">
+          <PopoverBody>
+            <FooterText />
+          </PopoverBody>
+        </UncontrolledPopover>
+      </Sidebar.Section>
+    </Sidebar.ShowSlim>
+    { /* END Slim Only */ }
+  </React.Fragment>
+)
+
+export { SidebarBottomA };
