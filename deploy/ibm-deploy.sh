@@ -3,9 +3,9 @@
 set -eu
 
 if [ $# -lt 5 ]; then
-	echo "usage:"
+  echo "usage:"
   echo "./ibm-deploy.sh REGION RESOURCE_GROUP NAMESPACE PACKAGE ACTION CREATE_IF_WANT_TO_CREATE"
-	exit 1
+  exit 1
 fi
 
 if [ -z "${APIKEY}" ]; then
@@ -46,6 +46,9 @@ else
   ibmcloud fn package create ${PACKAGE}
   ibmcloud fn action create ${PACKAGE}/${ACTION} app.zip --kind nodejs:10 --web raw
 fi
+
+echo "Please access to:"
+ibmcloud fn action get covsafe/view -r
 
 popd
 rm -rf ${PACKAGE_DIR}
