@@ -1,12 +1,13 @@
-# Front End
+# COVSAFE-VIEW
 
 ## How To Start
 
-Before you kick commands shown below, please update `./build/.env` with your configurations.
+Before you kick commands shown below, please update `./build/.env` with your configurations. If you use COVSAFE/delivery/scripts, you can get App ID and bucket name from `/path/to/COVSAFE/delivery/scripts/.credentials`. Also, this requires data-proxy API service information. Please deploy it beforehand, then getting info, like API URL, and copying it to `covsafe-view/build/.env`.
 
 ### Start Locally in Debug Mode
 
 ```sh
+cd /path/to/COVSAFE/covsafe-view
 unset SESSION_SECRET COOKIE_SECURE CLIENT_ID TENANT_ID SECRET OAUTH_SERVER_URL REDIRECT_URI BASE_PATH
 npm run start:dev
 ```
@@ -16,6 +17,7 @@ access to http://localhost:8080
 ### Start Locally in Prod Mode
 
 ```sh
+cd /path/to/COVSAFE/covsafe-view
 unset SESSION_SECRET COOKIE_SECURE CLIENT_ID TENANT_ID SECRET OAUTH_SERVER_URL REDIRECT_URI BASE_PATH
 # set proper env values
 export $(grep -v '^#' ./build/.env | xargs -0)
@@ -29,6 +31,7 @@ access to http://localhost:8080
 ### Debug Mode
 
 ```sh
+cd /path/to/COVSAFE/covsafe-view
 unset SESSION_SECRET COOKIE_SECURE CLIENT_ID TENANT_ID SECRET OAUTH_SERVER_URL REDIRECT_URI BASE_PATH
 npm run build:dev
 
@@ -42,6 +45,7 @@ npm start
 ### Prod Mode
 
 ```sh
+cd /path/to/COVSAFE/covsafe-view
 # set proper env values
 export $(grep -v '^#' ./build/.env | xargs -0)
 npm run build:prod
