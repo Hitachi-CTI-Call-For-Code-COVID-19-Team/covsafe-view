@@ -23,6 +23,7 @@ import Control from './CustomControl';
 import Slider from 'rc-slider';
 import classNames from 'classnames';
 import HeatmapLayer from './HeatmapLayer';
+import Fetch from '../../utils/fetch';
 
 import classes from './IndoorMap.scss';
 
@@ -166,6 +167,25 @@ class IndoorMap extends React.Component {
     
     console.log(`leaflet map will be drawn within [0, 0] and [${devided}] divided by ${divisor} zoomed by ${cnf.zoom}`);
 
+    // fetch map floor data
+    new Fetch(this.state.floorConfig.link.url, {
+      method: this.state.floorConfig.link.options.method,
+      headers: { ...this.state.floorConfig.link.options.headers, 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+      body: this.state.floorConfig.link.options.body,
+    })
+      .fetch()
+      .then(res => res.arrayBuffer())
+      .then(buf => {
+        const flr = this.state.floorConfig;
+        flr.url = 'data:image/png;base64,' + btoa(String.fromCharCode(...new Uint8Array(buf)));
+        this.setState({
+          floorConfig: flr,
+        });
+      })
+      .catch(err => {
+        console.error(`cannot fetch floormap data: ${err}`);
+      });
+
     // stop propagation for preventing the parent card moved
     // if (this.state.sliderConfig && this.state.heatStatus.list.length > 1) {
     //   L.DomEvent.disableClickPropagation(DOM.findDOMNode(this));
@@ -230,13 +250,16 @@ class IndoorMap extends React.Component {
         style={{ width: config.width, height: config.height, ...(style || {})}}
         zoomSnap={0}
       >
-        <ImageOverlay
-          ref={el => (this.indoor = el)}
-          url={floorConfig.url}
-          bounds={floorConfig.bounds}
-        />
         {
-          heatConfig && (
+          floorConfig && floorConfig.url && (
+            <ImageOverlay
+              url={floorConfig.url}
+              bounds={floorConfig.bounds}
+            />
+          )
+        }
+        {
+          heatConfig && heatData.length && (
             <HeatmapLayer
               fitBoundsOnLoad={heatConfig.fitBoundsOnLoad}
               fitBoundsOnUpdate={heatConfig.fitBoundsOnUpdate}
@@ -318,7 +341,12 @@ IndoorMap.propTypes = {
     scrollWheelZoom: PropTypes.bool,
   }),
   floorConfig: PropTypes.exact({
-    url: PropTypes.string.isRequired,
+    link: PropTypes.shape({
+      url: PropTypes.string.isRequired,
+      method: PropTypes.string,
+      body: PropTypes.string,
+      headers: PropTypes.object,
+    }),
     bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
   }),
   heatConfig: PropTypes.exact({

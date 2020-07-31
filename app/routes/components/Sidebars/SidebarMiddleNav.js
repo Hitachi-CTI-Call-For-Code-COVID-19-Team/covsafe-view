@@ -50,7 +50,7 @@ const SidebarMiddleNav = ({ t, i18n }) => (
       title={t('menus:sidebar.menu.dashboard')}
       to='/dashboard'
     />
-    <SidebarMenu.Item
+    {/* <SidebarMenu.Item
       icon={<i className="fa fa-fw fa-bar-chart"></i>}
       title={t('menus:sidebar.menu.analytics.itself')}
     >
@@ -62,7 +62,7 @@ const SidebarMiddleNav = ({ t, i18n }) => (
         title={t('menus:sidebar.menu.analytics.individuals')}
         to='/analytics/individuals'
       />
-    </SidebarMenu.Item>
+    </SidebarMenu.Item> */}
     <SidebarMenu.Item
       icon={<i className="fa fa-fw fa-upload"></i>}
       title={t('menus:sidebar.menu.uploader')}

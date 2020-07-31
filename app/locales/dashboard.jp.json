@@ -28,7 +28,14 @@
   },
   "suggestions-list": {
     "title": "最新の提案",
-    "view-all": "全てを見る"
+    "view-all": "全てを見る",
+    "headers": {
+      "timestamp": "日時",
+      "suggestion": "提案",
+      "causes": "原因",
+      "severity": "深刻度",
+      "target": "エリア・従業員"
+    }
   },
   "heatmap": {
     "title": "安心度マップ",

@@ -28,7 +28,14 @@
   },
   "suggestions-list": {
     "title": "Latest Suggestions",
-    "view-all": "View All"
+    "view-all": "View All",
+    "headers": {
+      "timestamp": "Date",
+      "suggestion": "Suggestions",
+      "causes": "Causes",
+      "severity": "Severity",
+      "target": "Areas/Workers"
+    }
   },
   "heatmap": {
     "title": "ANSHIN Index Map",

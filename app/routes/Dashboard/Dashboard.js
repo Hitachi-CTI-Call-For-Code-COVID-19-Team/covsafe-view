@@ -20,12 +20,12 @@ import _ from 'lodash';
 import { withTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import converter from '../../utils/converter';
+import Fetch from '../../utils/fetch';
 
 import {
   Container,
   Row,
   Col,
-  Progress,
 } from './../../components';
 import { IndexCard } from './components';
 import { IndoorMap } from './../../components/Maps';
@@ -38,20 +38,141 @@ import faker from '../../utils/faker';
 
 // constants
 const now = new Date();
-const URLs = [
+const Links = [
   // map config
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.VIEW_CONFIG_DB,
+      query: {
+        selector: {
+          '_id': { '$gt': '0' }
+        },
+        fields: [],
+        sort: [{ '_id': 'asc' }]
+      }
+    }),
+  }),
   // assets
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.ASSETS_DB,
+      query: {
+        selector: {
+          '_id': { '$gt': '0' }
+        },
+        fields: [],
+        sort: [{ '_id': 'asc' }]
+      }
+    }),
+  }),
+  // notification teamplate
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.NOTICE_TEMPLATE_DB,
+      query: {
+        selector: {},
+        fields: ['notifications']
+      }
+    }),
+  }),
   // total risks
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.RISK_DB,
+      query: {
+        selector: {
+          'risk.type': 't',
+          'timestamp': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString()
+          }
+        },
+        fields: ['timestamp', 'id', 'risk'],
+        sort: [{ 'timestamp': 'desc' }]
+      }
+    }),
+  }),
   // congestion risks
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.RISK_DB,
+      query: {
+        selector: {
+          'risk.type': 'c',
+          'timestamp': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString()
+          }
+        },
+        fields: ['timestamp', 'id', 'risk'],
+        sort: [{ 'timestamp': 'desc' }]
+      }
+    }),
+  }),
   // sanitization risks
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.RISK_DB,
+      query: {
+        selector: {
+          'risk.type': 's',
+          'timestamp': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString()
+          }
+        },
+        fields: ['timestamp', 'id', 'risk'],
+        sort: [{ 'timestamp': 'desc' }]
+      }
+    }),
+  }),
   // disinfection risks
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.RISK_DB,
+      query: {
+        selector: {
+          'risk.type': 'd',
+          'timestamp': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString()
+          }
+        },
+        fields: ['timestamp', 'id', 'risk'],
+        sort: [{ 'timestamp': 'desc' }]
+      }
+    }),
+  }),
+  // notification
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.NOTICE_DB,
+      query: {
+        selector: {
+          'timestamp': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString()
+          }
+        },
+        fields: ['id', 'timestamp', 'causes', 'code', 'variables'],
+        sort: [{ 'timestamp': 'desc' }],
+        limit: 10,
+      }
+    }),
+  }),
 ];
+
 const DonutChartStyles = {
   aspect: 1.0,
   innerRadius: '80%',
@@ -60,68 +181,6 @@ const DonutChartStyles = {
   cy: '50%',
   startAngle: 0,
   endAngle: 360,
-};
-
-// dummy data
-const SuggestionsData = {
-  // headers: ['日時', '提案', '原因', '深刻度', 'エリア・従業員'],
-  headers: ['Date', 'Suggestions', 'Causes', 'Severity', 'Areas/Workers'],
-  data: [{
-    'Date': 'Wed Jun 10 2020 20:47:39',
-    'Suggestions': 'Too congested',
-    'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={80} slim color='danger' />),
-    'Areas/Workers': 'Area-05',
-    // '日時': '2020/6/19 金曜日 13:47:39',
-    // '提案': '混雑度が一定水準を超えました。このエリアの従業員は配置移動もしくは休憩が必要です',
-    // '原因': 'タイプ: 混雑度',
-    // '深刻度': () => (<Progress value={80} style={{ height: '5px' }} color='danger' />),
-    // 'エリア・従業員': 'エリア 05',
-  }, {
-    'Date': 'Wed Jun 10 2020 19:47:39',
-    'Suggestions': 'Recommend to keep a social distance',
-    'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={50} slim color='yellow' />),
-    'Areas/Workers': 'Area-05',
-    // '日時': '2020/6/19 金曜日 13:30:39',
-    // '提案': 'ソーシャルディスタンスの維持を推奨します',
-    // '原因': 'タイプ: 混雑度',
-    // '深刻度': () => (<Progress value={50} style={{ height: '5px' }} color='yellow' />),
-    // 'エリア・従業員': 'エリア 05',
-  }, {
-    'Date': 'Wed Jun 10 2020 19:37:39',
-    'Suggestions': 'Few people wahsed their hands',
-    'Causes': 'Type: Washing Hands Detection',
-    'Severity': () => (<Progress value={90} slim color='danger' />),
-    'Areas/Workers': 'Area-01',
-    // '日時': '2020/6/19 金曜日 12:43:54',
-    // '提案': '手洗いを実施している来訪者が一定水準を下回りました。手洗い協力の要請が必要です',
-    // '原因': 'タイプ: 手洗い検知',
-    // '深刻度': () => (<Progress value={90} style={{ height: '5px' }} color='danger' />),
-    // 'エリア・従業員': 'エリア 01',
-  }, {
-    'Date': 'Wed Jun 10 2020 10:47:39',
-    'Suggestions': 'Recommend to keep a social distance',
-    'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={57} slim color='yellow' />),
-    'Areas/Workers': 'Area-10',
-    // '日時': '2020/6/19 金曜日 10:27:19',
-    // '提案': 'ソーシャルディスタンスの維持を推奨します',
-    // '原因': 'タイプ: 混雑度',
-    // '深刻度': () => (<Progress value={57} style={{ height: '5px' }} color='yellow' />),
-    // 'エリア・従業員': 'エリア 10',
-  }, {
-    'Date': 'Wed Jun 10 2020 01:47:39',
-    'Suggestions': 'Recommend to keep a social distance',
-    'Causes': 'Type: Congestion',
-    'Severity': () => (<Progress value={51} slim color='yellow' />),
-    'Areas/Workers': 'Area-14',
-    // '日時': '2020/6/19 金曜日 10:00:51',
-    // '提案': 'ソーシャルディスタンスの維持を推奨します',
-    // '原因': 'タイプ: 混雑度',
-    // '深刻度': () => (<Progress value={51} style={{ height: '5px' }} color='yellow' />),
-    // 'エリア・従業員': 'エリア 14',
-  }]
 };
 
 class Dashboard extends React.Component {
@@ -138,6 +197,7 @@ class Dashboard extends React.Component {
     this.state = {
       mapConfig: null,
       assets: null,
+      template: null,
       total: null,
       congestion: null,
       sanitization: null,
@@ -149,25 +209,37 @@ class Dashboard extends React.Component {
 
   componentDidMount() {
     // fetching data
-    Promise.all(URLs.map(u => fetch(u)))
+    Promise.all(Links.map(l => l.fetch()))
     .then(responses => Promise.all(responses.map(res => res.json())))
+    .then(responses => Promise.all(responses.map(res => res.docs)))
+    .then(responses => {
+      console.log(responses)
+      if (responses.slice(0, 4).some(e => e.length === 0)) {
+        throw new Error('there are sort of data from back-end that are empty');
+      }
+      return responses;
+    })
     .then(jsons => {
       this.setState({
-        mapConfig: jsons[0],
-        assets: jsons[1], 
-        total: jsons[2],
-        congestion: jsons[3],
-        sanitization: jsons[4],
-        disinfection: jsons[5],
-        congestionMap: converter.risk.toHeat(jsons[1], jsons[0].map.floor.bounds[1], jsons[3]),
+        mapConfig: jsons[0][0],
+        assets: jsons[1],
+        template: jsons[2][0],
+        total: jsons[3],
+        congestion: jsons[4],
+        sanitization: jsons[5],
+        disinfection: jsons[6],
+        notification: converter.risk.toSuggestion(jsons[2][0], jsons[7]),
+        congestionMap: converter.risk.toHeat(jsons[1], jsons[0][0].map.floor.bounds[1], jsons[4]),
         loading: false,
       });
     })
     .catch(e => {
+      console.log('-=-=-=fsd-f=a-dfa=d-fa=f- why is here?');
       // FIXME: switch fallback mode and remove interval part
       this.setState({
         mapConfig: faker.mapConfig,
         assets: faker.assets,
+        template: faker.template,
         total: faker.totalRisks(now, new Date(now.getTime() - 24 * 60 * 60000), 30 * 60000),
         congestion: converter.risk.mean(
           faker.risks('congestion', now, new Date(now.getTime() - 24 * 60 * 60000), 60 * 60000)
@@ -177,6 +249,10 @@ class Dashboard extends React.Component {
         ),
         disinfection: converter.risk.mean(
           faker.risks('disinfection', now, new Date(now.getTime() - 24 * 60 * 60000), 30 * 60000)
+        ),
+        notification: converter.risk.toSuggestion(
+          faker.template,
+          faker.notifications(10, now, new Date(now.getTime() - 10 * 60 * 60000), 30 * 60000).slice(0, 10)
         ),
         congestionMap: converter.risk.toHeat(
           faker.assets,
@@ -190,7 +266,14 @@ class Dashboard extends React.Component {
   
   render() {
     const { fluid, t } = this.props;
-    const { mapConfig, total, congestion, sanitization, disinfection, congestionMap } = this.state;
+    const { mapConfig, total, congestion, sanitization, disinfection, congestionMap, notification } = this.state;
+    const suggestionHeaders = [
+      { key: 'timestamp', value: t('dashboard:suggestions-list.headers.timestamp') },
+      { key: 'suggestion', value: t('dashboard:suggestions-list.headers.suggestion') },
+      { key: 'causes', value: t('dashboard:suggestions-list.headers.causes') },
+      { key: 'severity', value: t('dashboard:suggestions-list.headers.severity') },
+      { key: 'target', value: t('dashboard:suggestions-list.headers.target') },
+    ];
 
     if (this.state.loading) {
       return (
@@ -224,7 +307,7 @@ class Dashboard extends React.Component {
                   title={t('dashboard:index-overview.titles.total')}
                   link={{
                     title: t(`dashboard:index-overview.comments.${total[0].risk.level}`),
-                    path: 'suggestions',
+                    path: '#suggestions',
                   }}
                   arcData={{ ...total[0].risk }}
                   arcStyle={DonutChartStyles}
@@ -239,7 +322,7 @@ class Dashboard extends React.Component {
                   title={t('dashboard:index-overview.titles.congestion')}
                   link={{
                     title: t(`dashboard:index-overview.comments.${congestion[0].risk.level}`),
-                    path: 'suggestions',
+                    path: '#suggestions',
                   }}
                   arcData={{ ...congestion[0].risk }}
                   arcStyle={DonutChartStyles}
@@ -254,7 +337,7 @@ class Dashboard extends React.Component {
                   title={t('dashboard:index-overview.titles.sanitization')}
                   link={{
                     title: t(`dashboard:index-overview.comments.${sanitization[0].risk.level}`),
-                    path: 'suggestions',
+                    path: '#suggestions',
                   }}
                   arcData={{ ...sanitization[0].risk }}
                   arcStyle={DonutChartStyles}
@@ -269,7 +352,7 @@ class Dashboard extends React.Component {
                   title={t('dashboard:index-overview.titles.disinfection')}
                   link={{
                     title: t(`dashboard:index-overview.comments.${disinfection[0].risk.level}`),
-                    path: 'suggestions',
+                    path: '#suggestions',
                   }}
                   arcData={{ ...disinfection[0].risk }}
                   arcStyle={DonutChartStyles}
@@ -312,13 +395,13 @@ class Dashboard extends React.Component {
 
             <Row className='mb-5'>
               <Col lg={12}>
-                <div>
+                <div id='suggestions'>
                   <div className='hr-text hr-text-left mt-4 mb-4 lead'>
                     <span>
                       {t('dashboard:suggestions-list.title')}
                     </span>
                   </div>
-                  <EasyTable headers={SuggestionsData.headers} data={SuggestionsData.data} />
+                  <EasyTable headers={suggestionHeaders} data={notification} />
                 </div>
               </Col>
             </Row>

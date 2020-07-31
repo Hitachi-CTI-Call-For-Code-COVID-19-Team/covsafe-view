@@ -41,7 +41,7 @@ class UncontrolledModal extends React.Component {
     }
 
     clickEventHandler() {
-        this.setState({ isOpen: true });
+        this.setState({ isOpen: !this.state.isOpen });
     }
 
     render() {
@@ -53,7 +53,7 @@ class UncontrolledModal extends React.Component {
                 <Modal
                     { ...modalProps }
                     isOpen={ this.state.isOpen }
-                    toggle={ toggleModal }
+                    // toggle={ toggleModal }
                 />
             </Provider>
         );

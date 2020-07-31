@@ -4,10 +4,21 @@
       "maxZoom": 10,
       "minZoom": 1,
       "dragging": true,
-      "zoomControl": true
+      "zoomControl": true,
+      "scrollWheelZoom": true
     },
     "floor": {
-      "url": "",
+      "link": {
+        "url": "https://gw.jp-tok.apigw.appdomain.cloud/api/18b547a4a1ff58c4bfc830d55df859bbd65c4e22952ccc4b2617d0c47936121e/public/api/files",
+        "options": {
+          "method": "post",
+          "body": "{\"bucket\": \"d9005029-78e6-4e11-8d2c-fcbbac0bca7a\", \"key\": \"floormap.png\"}",
+          "headers": {
+            "content-type": "application/json",
+            "accept": "image/*"
+          }
+        }
+      },
       "bounds": [
         [0, 0],
         [1080, 1920]
@@ -28,6 +39,7 @@
       "duration": 3000,
       "fps": 100,
       "radiusRange": [3, 70]
-    }
+    },
+    "slider": {}
   }
 }

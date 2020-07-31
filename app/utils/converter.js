@@ -14,6 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import React from 'react';
+import { Progress } from './../components';
+import i18n from './../i18n';
+
 // calculate mean from data with the same timestamp
 // @data {Array} is array containing risk values which the backend pushes
 function mean(data) {
@@ -56,12 +60,12 @@ function mean(data) {
 // @data {Array} is array containing risk values which the backend pushes
 function toHeat(assets, bounds, data) {
   return data.reduce((p, d) => {
-    const asset = assets.find(a => a.doc.id === d.id);
+    const asset = assets.find(a => a.id === d.id);
 
     function centered() {
       return [[
-        (asset.doc.mapCoordinate.lat + asset.doc.mapCoordinate.height / 2) / bounds[0],
-        (asset.doc.mapCoordinate.lng + asset.doc.mapCoordinate.width / 2) / bounds[1],
+        (asset.mapCoordinate.lat + asset.mapCoordinate.height / 2) / bounds[0],
+        (asset.mapCoordinate.lng + asset.mapCoordinate.width / 2) / bounds[1],
         d.risk.value
       ]];
     }
@@ -91,6 +95,27 @@ function toPing(latlng, bounds) {
   return [latlng[0] / bounds[0], latlng[1] / bounds[1]];
 }
 
+function toSuggestion(template, data) {
+  return data.map(d => {
+    const tmpl = template.language.notifications[i18n.language][d.code.target][d.code.kind][d.code.number];
+
+    return {
+      timestamp: d.timestamp,
+      suggestion: Object.keys(d.variables).reduce((p, v) => {
+        p = p.replace(new RegExp('\{(' + v + ')\}'), d.variables[v]);
+        return p;
+      }, tmpl),
+      causes: d.causes,
+      severity: () => (
+        <Progress
+          value={d.level === 'H' ? 80 : d.level === 'A' ? 50 : 20}
+          slim
+          color={d.level === 'H' ? 'danger' : d.level === 'A' ? 'yellow' : 'green'} />),
+      target: d.id,
+    };
+  });
+}
+
 function level(val) {
   return val > 0.7 ? 'H' : val > 0.4 ? 'A' : 'L';
 }
@@ -100,6 +125,7 @@ const risk = {
   mean,
   toHeat,
   toPing,
+  toSuggestion,
 };
 
 export default { risk };

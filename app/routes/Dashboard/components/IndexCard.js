@@ -40,7 +40,8 @@ SOFTWARE.
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { HashLink as Link } from 'react-router-hash-link';
+// import { Link } from 'react-router-dom';
 
 import { ArcChart, TinyAreaChart } from './../../../components/Charts';
 import {
@@ -60,7 +61,7 @@ const IndexCard = (props) => {
             <h4 className='my-4 fw-300'>{title}</h4>
             {
               link && (
-                <Button color='link' size='sm' className='pt-0 pl-0 ml-auto' tag={Link} to={link.path}>
+                <Button color='link' size='sm' className='pt-0 pl-0 ml-auto' smooth tag={Link} to={link.path}>
                   {link.title} <i className='fa fa-angle-right'></i>
                 </Button>
               )

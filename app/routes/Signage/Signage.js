@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import React from 'react';
-import fetch from 'node-fetch';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Carousel } from 'react-responsive-carousel';
@@ -25,25 +24,94 @@ import { Container, Row, Col, Media, Card, CardBody, CardImg, CardTitle } from '
 import { withPageConfig } from './../../components/Layout/withPageConfig';
 import { IndoorMap } from './../../components/Maps';
 import i18n, { getLocale } from './../../i18n';
+import Fetch from '../../utils/fetch';
 import converter from '../../utils/converter';
+import defaultMessages from '../../data/default-messages';
 
 import '../../styles/components/override-carousel.scss';
 import classes from './Signage.scss';
-import faker from '../../utils/faker';
 
 // constants
 const now = new Date();
-const DataURLs = [
+const Links = [
   // map config
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.VIEW_CONFIG_DB,
+      query: {
+        selector: {
+          '_id': { '$gt': '0' }
+        },
+        fields: [],
+        sort: [{ '_id': 'asc' }]
+      }
+    }),
+  }),
   // assets
-  '',
-  // congestion risks
-  '',
-  // messages
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.ASSETS_DB,
+      query: {
+        selector: {
+          '_id': { '$gt': '0' }
+        },
+        fields: [],
+        sort: [{ '_id': 'asc' }]
+      }
+    }),
+  }),
   // shop list
-  '',
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.SHOPS_DB,
+      query: {
+        selector: {},
+        fields: ['name', 'image'],
+      }
+    }),
+  }),
+  // congestion risks
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.RISK_DB,
+      query: {
+        selector: {
+          'risk.type': 'c',
+          'timestamp': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString()
+          }
+        },
+        fields: ['timestamp', 'id', 'risk'],
+        sort: [{ 'timestamp': 'desc' }]
+      }
+    }),
+  }),
+  // ads
+  new Fetch(process.env.PUBLIC_API_DOCS, {
+    method: 'post',
+    headers: { 'content-type': 'application/json', 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+    body: JSON.stringify({
+      dbname: process.env.ADVERTISEMENT_DB,
+      query: {
+        selector: {
+          'start': {
+            '$gt': new Date(now.getTime() - 1000 * 60 * 60 * 5).toISOString()
+          }
+        },
+        fields: ['title', 'start', 'end', 'contents', 'image', 'media'],
+        // sort: [{ 'start': 'asc' }],
+        limit: 10,
+      }
+    }),
+  }),
 ];
 
 class Signage extends React.Component {
@@ -59,9 +127,9 @@ class Signage extends React.Component {
       data: {
         mapConfig: null,
         assets: null,
+        shops: null,
         risks: null,
         messages: null,
-        shops: null,
       },
     };
   }
@@ -75,36 +143,65 @@ class Signage extends React.Component {
     });
 
     // fetching data
-    Promise.all(DataURLs.map(u => fetch(u)))
+    Promise.all(Links.map(l => l.fetch()))
       .then(responses => Promise.all(responses.map(res => res.json())))
+      .then(responses => Promise.all(responses.map(res => res.docs)))
+      .then(responses => {
+        if (responses.slice(0, 3).some(e => e.length === 0)) {
+          throw new Error('some of configuration data from back-end are empty');
+        }
+        return responses;
+      })
       .then(jsons => {
         this.setState({
-          loading: false,
           data: {
-            mapConfig: jsons[0],
+            mapConfig: jsons[0][0],
             assets: jsons[1],
-            risks: converter.risk.toHeat(jsons[1], jsons[0].map.floor.bounds[1], jsons[2]),
-            messages: jsons[3],
-            shops: jsons[4],
+            shops: jsons[2],
+            risks: converter.risk.toHeat(jsons[1], jsons[0][0].map.floor.bounds[1], jsons[3]),
+            messages: !jsons[4].length ? defaultMessages : defaultMessages.concat(jsons[4]),
           },
         });
+
+        // load static files
+        const statics = this.state.data.shops.concat(this.state.data.messages);
+        const fetchers = statics.map(e => new Fetch(e.image.url, {
+          method: e.image.options.method,
+          headers: { ...e.image.options.headers, 'x-ibm-client-id': process.env.PUBLIC_API_KEY },
+          body: e.image.options.body,
+        }));
+        Promise.all(fetchers.map(f => f.fetch()))
+          .then(responses => Promise.all(responses.map(res => res.arrayBuffer())))
+          .then(buffers => {
+            statics.forEach((f, i) => {
+              // FIXME: support other than png
+              f.imagesrc = 'data:image/png;base64,' +
+                btoa(new Uint8Array(buffers[i]).reduce((p, b) => p + String.fromCharCode(b), ''));
+            });
+            this.setState({
+              loading: false,
+            });
+          })
+          .catch(err => {
+            console.error(`cannot fetch static files: ${err}`);
+          });
       })
       .catch(e => {
-        // FIXME: switch fallback mode and remove interval part
-        this.setState({
-          loading: false,
-          data: {
-            mapConfig: faker.mapConfig,
-            assets: faker.assets,
-            risks: converter.risk.toHeat(
-              faker.assets,
-              faker.mapConfig.map.floor.bounds[1],
-              faker.risks('congestion', now, new Date(now.getTime() - 1 * 60 * 60000), 60 * 60000),
-            ),
-            messages: faker.messages(now, 10),
-            shops: faker.shops(10),
-          },
-        });
+        console.error(`cannot fetch backend data ${e}`);
+        // this.setState({
+        //   loading: false,
+        //   data: {
+        //     mapConfig: faker.mapConfig,
+        //     assets: faker.assets,
+        //     risks: converter.risk.toHeat(
+        //       faker.assets,
+        //       faker.mapConfig.map.floor.bounds[1],
+        //       faker.risks('congestion', now, new Date(now.getTime() - 1 * 60 * 60000), 60 * 60000),
+        //     ),
+        //     messages: faker.messages(now, 10),
+        //     shops: faker.shops(10),
+        //   },
+        // });
       });
   }
 
@@ -126,8 +223,10 @@ class Signage extends React.Component {
     }
   }
 
-  mkCarouselItem(key, { title, start, end, contents, image }) {
-    const isAllDate = !start;
+  mkCarouselItem(key, { title, start, end, contents, imagesrc }) {
+    const isAllDate = !start || !end;
+    start = isAllDate ? undefined : new Date(start);
+    end = isAllDate ? undefined : new Date(end);
     const isSameDate = start && end && start.toLocaleDateString() === end.toLocaleDateString();
     const locale = getLocale(i18n.language);
     const startDate = isAllDate ? undefined : start.toLocaleDateString(locale);
@@ -157,7 +256,7 @@ class Signage extends React.Component {
               </h3>
             </Media>
             <Media right style={{ margin: 'auto', maxWidth: '40%' }}>
-              <img className='img-fluid' src={image} />
+              <img className='img-fluid' src={imagesrc} />
             </Media>
           </Media>
         </CardBody>
@@ -165,13 +264,19 @@ class Signage extends React.Component {
     );
   }
 
-  mkShopList(key, { name, image }) {
+  mkShopList(key, { name, imagesrc }) {
     return (
       <Col key={key} lg={3} md={4}>
         <Card className='mb-3'>
-          <CardImg src={image} />
+          <CardImg src={imagesrc} />
           <CardBody>
-            <CardTitle className='h4 text-center fw-300'>{name}</CardTitle>
+            <CardTitle className='h4 text-center fw-300'>
+              <span className="fa-stack mr-2 mb-1" style={{ color: 'rgb(4 142 212 / 90%)'}}>
+                <i className="fa fa-circle fa-stack-2x"></i>
+                <i className="fa fa-inverse fa-stack-1x">{key + 1}</i>
+              </span>
+              <span>{name}</span>
+            </CardTitle>
           </CardBody>
         </Card>
       </Col>

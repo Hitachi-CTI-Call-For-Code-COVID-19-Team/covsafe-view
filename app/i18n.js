@@ -25,10 +25,18 @@ import analyticsEN from './locales/analytics.en.json';
 import analyticsJP from './locales/analytics.jp.json';
 import advUploaderEN from './locales/adv-uploader.en.json';
 import advUploaderJP from './locales/adv-uploader.jp.json';
+import defaultMessagesEN from './locales/default-messages.en.json';
+import defaultMessagesJP from './locales/default-messages.jp.json';
 
 const resources = {
-  en: { menus: menusEN, dashboard: dashboardEN, analytics: analyticsEN, uploader: advUploaderEN },
-  jp: { menus: menusJP, dashboard: dashboardJP, analytics: analyticsJP, uploader: advUploaderJP }
+  en: {
+    menus: menusEN, dashboard: dashboardEN, analytics: analyticsEN, uploader: advUploaderEN,
+    messages: defaultMessagesEN
+  },
+  jp: {
+    menus: menusJP, dashboard: dashboardJP, analytics: analyticsJP, uploader: advUploaderJP,
+    messages: defaultMessagesJP
+  }
 };
 
 i18n

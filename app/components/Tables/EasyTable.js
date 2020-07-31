@@ -28,7 +28,7 @@ const EasyTable = (props) => {
       <thead>
         <tr>
           {
-            headers.map((h, i) => (<th className='bt-0' key={i}>{h}</th>))
+            headers.map((h, i) => (<th className='bt-0' key={i}>{h.value}</th>))
           }
         </tr>
       </thead>
@@ -39,16 +39,16 @@ const EasyTable = (props) => {
               <tr key={i}>
                 {
                   headers.map((h, j) => {
-                    if (typeof d[h] === 'string') {
+                    if (typeof d[h.key] === 'string') {
                       return (
                         <td className='align-middle' key={j}>
-                          {d[h]}
+                          {d[h.key]}
                         </td>
                       );
-                    } else if (typeof d[h] === 'function') {
+                    } else if (typeof d[h.key] === 'function') {
                       return (
                         <td className='align-middle' key={j}>
-                          {d[h]()}
+                          {d[h.key]()}
                         </td>
                       )
                     }
@@ -63,7 +63,10 @@ const EasyTable = (props) => {
   );
 };
 EasyTable.propTypes = {
-  headers: PropTypes.arrayOf(PropTypes.string),
+  headers: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string,
+    value: PropTypes.string,
+  })),
 };
 
 export { EasyTable };

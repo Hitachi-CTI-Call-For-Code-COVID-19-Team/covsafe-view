@@ -3,6 +3,7 @@
   "explain": "Fill the title and content as well as place a picture that atract your customers.",
   "form": {
     "title": "Title",
+    "date": "Date/Time Between",
     "content": "Content",
     "upload": "Upload Your File",
     "select": "Select Media to show",

@@ -14,12 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import faker, { fake } from 'faker/locale/en_US';
+import fakerUS from 'faker/locale/en_US';
+import fakerJA from 'faker/locale/ja';
+import i18n, { getLocale } from '../i18n';
 
 const assets = require('../data/assets.json');
 
 const mapConfig = require('../data/map-config.json');
-mapConfig.map.floor.url = require('../images/map/floormap.png');
+
+const template = require('../data/notification-template.json');
 
 function totalRisks(from, to, window) {
   const dates = [];
@@ -51,15 +54,15 @@ function risks(typ, from, to, window) {
   }
 
   return dates.reduce((p, d) => {
-    p = p.concat(assets.filter(a => a.doc.id.startsWith(typ)).map(a => {
+    p = p.concat(assets.filter(a => a.id.startsWith(typ)).map(a => {
       let val = Math.floor(Math.random() * 100) / 100;
       if (typ === 'congestion') {
-        val = Math.floor(Math.min(val + a.doc.settings.coef, 0.99) * 100) / 100;
+        val = Math.floor(Math.min(val + a.settings.coef, 0.99) * 100) / 100;
       }
 
       return {
         timestamp: d.toISOString(),
-        id: a.doc.id,
+        id: a.id,
         risk: {
           value: val,
           cumValue: 0,
@@ -107,20 +110,21 @@ function messages(now, num) {
   ];
 
   const areas = assets
-    .filter(e => e.doc.id.startsWith('congestion'))
-    .filter(e => e.doc.settings.coef === 0.1)
-    .filter(e => e.doc.belongs === 'imaginary-shopping-mall-1st-floor');
+    .filter(e => e.id.startsWith('congestion'))
+    .filter(e => e.settings.coef === 0.1)
+    .filter(e => e.belongs === 'imaginary-shopping-mall-1st-floor');
 
   for (let i = 0; i < num - 2; i++) {
     mess.push({
       title: titles[Math.floor(Math.random() * titles.length)],
       start: now,
       end: new Date(now.getTime() + Math.floor(Math.random() * 1000 * 60 * 60 * 8)),
-      contents: faker.lorem.sentences(),
-      image: faker.image[categories[Math.floor(Math.random() * categories.length)]](),
+      contents: (i18n.language === 'en' ? fakerUS : fakerJA).lorem.sentences(),
+      image: (i18n.language === 'en' ? fakerUS : fakerJA).image[
+        categories[Math.floor(Math.random() * categories.length)]
+      ](),
       location: (() => {
-        const coor = areas[Math.floor(Math.random() * areas.length)].doc.mapCoordinate;
-        console.log(coor);
+        const coor = areas[Math.floor(Math.random() * areas.length)].mapCoordinate;
         return [coor.lat, coor.lng];
       })(),
     });
@@ -137,11 +141,56 @@ function shops(num) {
   ];
   for (let i = 0; i < num; i++) {
     shop.push({
-      name: faker.company.companyName(),
-      image: faker.image[categories[Math.floor(Math.random() * categories.length)]](),
+      name: (i18n.language === 'en' ? fakerUS : fakerJA).company.companyName(),
+      image: (i18n.language === 'en' ? fakerUS : fakerJA).image[
+        categories[Math.floor(Math.random() * categories.length)]
+      ](),
     });
   }
   return shop;
 }
 
-export default { assets, mapConfig, totalRisks, risks, messages, shops };
+function notifications(num, from, to, window) {
+  const dates = [];
+
+  for (let d = from; d > to; d = new Date(d.getTime() - window)) {
+    dates.push(d);
+  }
+
+  const n = num / dates.length;
+  return dates.reduce((p, d) => {
+    const ntf = [];
+    for (let i = 0; i < n; i++) {
+      let target = ['forCustomers', 'toStaff', 'toManager'][Math.floor(Math.random() * 3)];
+      let kind = target === 'forCustomers' ? 'generic' : 
+        target === 'toStaff' ? ['staff', 'area', 'toilet', 'garbage', 'handwash'][Math.floor(Math.random() * 5)] :
+        target === 'toManager' ? ['area', 'time', 'staff'][Math.floor(Math.random() * 3)] : '';
+      const numbers = Object.keys(template.language.notifications[i18n.language][target][kind]);
+      let number = numbers[Math.floor(Math.random() * numbers.length)];
+      let tmpl = [...template.language.notifications[i18n.language][target][kind][number].matchAll(/\{([a-zA-Z0-9]+)\}/g)];
+
+      ntf.push({
+        id: assets[Math.floor(Math.random() * assets.length)].id,
+        timestamp: d.toLocaleString(getLocale(i18n.language)),
+        causes: (i18n.language === 'en' ? fakerUS : fakerJA).hacker.phrase(),
+        code: {
+          target: target,
+          kind: kind,
+          number: number,
+        },
+        variables: (() => {
+          return tmpl.reduce((pp, t) => {
+            pp[t[1]] = (i18n.language === 'en' ? fakerUS : fakerJA).company.bsNoun();
+            return pp;
+          }, {});
+        })(),
+        level: ['H', 'A', 'L'][Math.floor(Math.random() * 3)],
+      });
+    }
+
+    p = p.concat(ntf);
+    return p;
+  }, []);
+}
+
+export default { assets, mapConfig, template, totalRisks, risks, messages, shops, notifications };
